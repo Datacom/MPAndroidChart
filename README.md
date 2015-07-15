@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Datacom/MPAndroidChart.png?label=ready&title=Ready)](https://waffle.io/Datacom/MPAndroidChart)
  [![Android Arsenal](http://img.shields.io/badge/Android%20Arsenal-MPAndroidChart-blue.svg?style=flat)](http://android-arsenal.com/details/1/741)  [![Release](https://img.shields.io/github/release/PhilJay/MPAndroidChart.svg?label=maven central)](https://jitpack.io/#PhilJay/MPAndroidChart)      [![API](https://img.shields.io/badge/API-8%2B-green.svg?style=flat)](https://android-arsenal.com/api?level=8)
 
 Remember: *It's all about the looks.*
@@ -35,7 +36,9 @@ Donations
 
 []()
 
-Follow me on **Twitter**: [**PhilippJahoda**](https://twitter.com/PhilippJahoda)
+Follow me on **Twitter**: [**@PhilippJahoda**](https://twitter.com/PhilippJahoda)
+
+Look me up on **StackOverflow**: [**Philipp Jahoda**](http://stackoverflow.com/users/1590502/philipp-jahoda)
 
 
 Demo
@@ -175,11 +178,13 @@ dependencies {
 Proguard
 =======
 
-In case you are using Proguard, you will need to whitelist MPAndroidChart, which requires to add the following line to your Proguard configuration file.
+In case you are using Proguard, you will need to **whitelist MPAndroidChart**, which requires to add the following line to your Proguard configuration file.
 
 ```
 -keep class com.github.mikephil.charting.** { *; }
 ```
+
+If you don't do this, animations might not work.
 
 Documentation
 =======

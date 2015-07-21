@@ -462,9 +462,8 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
      * @return
      */
     public boolean valuesToHighlight() {
-        return mIndicesToHightlight == null || mIndicesToHightlight.length <= 0
-                || mIndicesToHightlight[0] == null ? false
-                : true;
+        return mIndicesToHightlight == null || mIndicesToHightlight.length <= 0 ||
+                mIndicesToHightlight[0] == null ? false : true;
     }
 
     /**
@@ -477,11 +476,15 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
      */
     public void highlightValues(Highlight[] highs) {
 
-        // set the indices to highlight
-        mIndicesToHightlight = highs;
-
-        if(highs == null || highs.length == 0)
-            mChartTouchListener.setLastHighlighted(null);
+        if(highs == null || highs.length == 0 || highs[0] == null) {
+            mIndicesToHightlight = null;
+        }
+        else {
+            // set the indices to highlight
+            for(int index = 0; index < highs.length; index++) {
+                this.addIndexToHighlight(highs[index]);
+            }
+        }
 
         // redraw the chart
         invalidate();
@@ -499,7 +502,7 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
         if (xIndex < 0 || dataSetIndex < 0 || xIndex >= mData.getXValCount()
                 || dataSetIndex >= mData.getDataSetCount()) {
 
-            highlightValues(null);
+            highlightValues(new Highlight[]{});
         } else {
             highlightValues(new Highlight[] {
                     new Highlight(xIndex, dataSetIndex)
@@ -519,22 +522,26 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
         Entry e = null;
 
         if (high == null)
-            mIndicesToHightlight = null;
+            return;
         else {
-
             if (mLogEnabled)
                 Log.i(LOG_TAG, "Highlighted: " + high.toString());
 
             e = mData.getEntryForHighlight(high);
             if (e == null || e.getXIndex() != high.getXIndex()) {
-                mIndicesToHightlight = null;
                 high = null;
+                return;
             }
             else {
-                // set the indices to highlight
-                mIndicesToHightlight = new Highlight[] {
-                        high
-                };
+                if(mChartTouchListener != null) {
+                    if (mChartTouchListener.getHighlightMode()) {
+                        // if highlight mode = true; add the index to highlight indices array
+                        this.addIndexToHighlight(high);
+                    } else {
+                        // if
+                        this.removeIndexToHighlight(high);
+                    }
+                }
             }
         }
 
@@ -543,13 +550,73 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
 
         if (mSelectionListener != null) {
 
-            if (!valuesToHighlight())
-                mSelectionListener.onNothingSelected();
-            else {
+            if (valuesToHighlight())
                 // notify the listener
                 mSelectionListener.onValueSelected(e, high.getDataSetIndex(), high);
+            else {
+                mSelectionListener.onNothingSelected();
             }
         }
+    }
+
+    private boolean addIndexToHighlight(Highlight high) {
+        boolean highlightAlreadyAdded = false;
+        if(this.valuesToHighlight()) {
+            Highlight[] temp = new Highlight[mIndicesToHightlight.length + 1];
+            for (int index = 0; index < mIndicesToHightlight.length; index++) {
+                temp[index] = mIndicesToHightlight[index];
+                if (mIndicesToHightlight[index].equalTo(high)) {
+                    highlightAlreadyAdded = true;
+                }
+            }
+            if (!highlightAlreadyAdded) {
+                temp[mIndicesToHightlight.length] = high;
+                mIndicesToHightlight = temp;
+            } else {
+                temp = null;
+            }
+        }
+        else {
+            mIndicesToHightlight = new Highlight[]{high};
+        }
+        return !highlightAlreadyAdded;
+    }
+
+    private boolean removeIndexToHighlight(Highlight high) {
+        boolean highlightRemoved = false;
+        if(this.valuesToHighlight()) {
+            Highlight[] temp = new Highlight[mIndicesToHightlight.length - 1];
+            for (int index = 0; index < mIndicesToHightlight.length; index++) {
+                if (mIndicesToHightlight[index].equalTo(high)) {
+                    highlightRemoved = true;
+                } else {
+                    if (highlightRemoved) {
+                        temp[index - 1] = mIndicesToHightlight[index];
+                    } else {
+                        if(index < temp.length) {
+                            temp[index] = mIndicesToHightlight[index];
+                        }
+                    }
+                }
+            }
+            if (highlightRemoved) {
+                mIndicesToHightlight = temp;
+            } else {
+                temp = null;
+            }
+        }
+        return highlightRemoved;
+    }
+
+    public boolean isHighlighted(Highlight high) {
+        if(valuesToHighlight() && high != null) {
+            for (int index = 0; index < mIndicesToHightlight.length; index++) {
+                if (mIndicesToHightlight[index].equalTo(high)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -581,6 +648,8 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
         // if there is no marker view or drawing marker is disabled
         if (mMarkerView == null || !mDrawMarkerViews || !valuesToHighlight())
             return;
+
+
 
         for (int i = 0; i < mIndicesToHightlight.length; i++) {
 

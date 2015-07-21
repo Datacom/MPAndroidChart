@@ -137,11 +137,7 @@ public class PieRadarChartTouchListener extends ChartTouchListener<PieRadarChart
 
         // check if a slice was touched
         if (distance > mChart.getRadius()) {
-
             // if no slice was touched, highlight nothing
-            mChart.highlightValues(null);
-            mLastHighlighted = null;
-
         } else {
 
             float angle = mChart.getAngleForPoint(e.getX(), e.getY());
@@ -154,10 +150,7 @@ public class PieRadarChartTouchListener extends ChartTouchListener<PieRadarChart
 
             // check if the index could be found
             if (index < 0) {
-
-                mChart.highlightValues(null);
-                mLastHighlighted = null;
-
+                // do nothing if the index isn't found
             } else {
 
                 List<SelectionDetail> valsAtIndex = mChart.getSelectionDetailsAtIndex(index);
@@ -174,20 +167,12 @@ public class PieRadarChartTouchListener extends ChartTouchListener<PieRadarChart
                 }
 
                 if (dataSetIndex < 0) {
-                    mChart.highlightValues(null);
-                    mLastHighlighted = null;
+                    // do nothing if the dataSetIndex is not found
                 } else {
                     Highlight h = new Highlight(index, dataSetIndex);
+                    super.onTouch(e, h);
+                    mChart.highlightTouch(h);
 
-                    if (h.equalTo(mLastHighlighted)) {
-
-                        mChart.highlightTouch(null);
-                        mLastHighlighted = null;
-                    } else {
-
-                        mChart.highlightTouch(h);
-                        mLastHighlighted = h;
-                    }
                 }
             }
         }

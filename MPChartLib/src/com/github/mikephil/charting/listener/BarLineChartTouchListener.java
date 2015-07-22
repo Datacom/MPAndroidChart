@@ -56,6 +56,9 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
     private PointF mDecelerationCurrentPoint = new PointF();
     private PointF mDecelerationVelocity = new PointF();
 
+    // Flag used to determine the initial call to performHighlightDrag method
+    private boolean mInitialHighlightDrag = true;
+
     public BarLineChartTouchListener(BarLineChartBase<? extends BarLineScatterCandleData<? extends BarLineScatterCandleDataSet<? extends Entry>>> chart, Matrix touchMatrix) {
         super(chart);
         this.mMatrix = touchMatrix;
@@ -64,6 +67,12 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        if(this.isHighlightModeInitialisedOnTouch()) {
+            super.onTouch(event, null);
+        }
+        else {
+            super.onTouch(event, mChart.getHighlightByTouchPoint(event.getX(), event.getY()));
+        }
 
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
@@ -367,11 +376,7 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
 
         Highlight h = mChart.getHighlightByTouchPoint(e.getX(), e.getY());
 
-        if (h == null || h.equalTo(mLastHighlighted)) {
-            mChart.highlightTouch(null);
-            mLastHighlighted = null;
-        } else {
-            mLastHighlighted = h;
+        if (h != null && mChart.isHighlighted(h) != getHighlightMode()) {
             mChart.highlightTouch(h);
         }
     }
@@ -385,11 +390,12 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
 
         Highlight h = mChart.getHighlightByTouchPoint(e.getX(), e.getY());
 
-        if (h != null && !h.equalTo(mLastHighlighted)) {
-            mLastHighlighted = h;
+        if (h != null && mChart.isHighlighted(h) != getHighlightMode()) {
             mChart.highlightTouch(h);
         }
     }
+
+
 
     /**
      * ################ ################ ################ ################

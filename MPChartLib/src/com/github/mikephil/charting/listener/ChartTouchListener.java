@@ -105,5 +105,4 @@ public abstract class ChartTouchListener<T extends Chart<?>> extends GestureDete
         return true;
     }
 
-
 }

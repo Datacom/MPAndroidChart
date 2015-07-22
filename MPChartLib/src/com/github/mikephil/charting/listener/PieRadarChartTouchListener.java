@@ -42,6 +42,13 @@ public class PieRadarChartTouchListener extends ChartTouchListener<PieRadarChart
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
+        if(this.isHighlightModeInitialisedOnTouch()) {
+            super.onTouch(event, null);
+        }
+        else {
+            super.onTouch(event, mChart.getHighlightByTouchPoint(event.getX(), event.getY()));
+        }
+
         if (mGestureDetector.onTouchEvent(event))
             return true;
 
@@ -133,50 +140,8 @@ public class PieRadarChartTouchListener extends ChartTouchListener<PieRadarChart
             l.onChartSingleTapped(e);
         }
 
-        float distance = mChart.distanceToCenter(e.getX(), e.getY());
-
-        // check if a slice was touched
-        if (distance > mChart.getRadius()) {
-            // if no slice was touched, highlight nothing
-        } else {
-
-            float angle = mChart.getAngleForPoint(e.getX(), e.getY());
-
-            if (mChart instanceof PieChart) {
-                angle /= mChart.getAnimator().getPhaseY();
-            }
-
-            int index = mChart.getIndexForAngle(angle);
-
-            // check if the index could be found
-            if (index < 0) {
-                // do nothing if the index isn't found
-            } else {
-
-                List<SelectionDetail> valsAtIndex = mChart.getSelectionDetailsAtIndex(index);
-
-                int dataSetIndex = 0;
-
-                // get the dataset that is closest to the selection (PieChart
-                // only
-                // has one DataSet)
-                if (mChart instanceof RadarChart) {
-
-                    dataSetIndex = Utils.getClosestDataSetIndex(valsAtIndex, distance
-                            / ((RadarChart) mChart).getFactor(), null);
-                }
-
-                if (dataSetIndex < 0) {
-                    // do nothing if the dataSetIndex is not found
-                } else {
-                    Highlight h = new Highlight(index, dataSetIndex);
-                    super.onTouch(e, h);
-                    mChart.highlightTouch(h);
-
-                }
-            }
-        }
-
+        Highlight h = mChart.getHighlightByTouchPoint(e.getX(), e.getY());
+        mChart.highlightTouch(h);
         return true;
     }
 

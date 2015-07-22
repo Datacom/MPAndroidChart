@@ -96,11 +96,11 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
     /**
      * Returns the Highlight object (contains x-index and DataSet index) of the
      * selected value at the given touch point inside the BarChart.
-     * 
+     *
      * @param x
      * @param y
      * @return
-     */
+     *//*
     @Override
     public Highlight getHighlightByTouchPoint(float x, float y) {
 
@@ -120,7 +120,7 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
             return null;
 
         return getHighlight(pts[0], pts[1]);
-    }
+    }*/
 
     /**
      * Returns the correct Highlight object (including xIndex and dataSet-index)

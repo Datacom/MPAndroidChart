@@ -30,6 +30,7 @@ import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.animation.EasingFunction;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.MarkerView;
+import com.github.mikephil.charting.data.BarLineScatterCandleDataSet;
 import com.github.mikephil.charting.data.ChartData;
 import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.Entry;
@@ -617,6 +618,31 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
             }
         }
         return false;
+    }
+
+    public abstract Highlight getHighlightByTouchPoint(float x, float y);
+
+    /**
+     * returns the DataSet object displayed at the touched position of the chart
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    public DataSet<? extends Entry> getDataSetByTouchPoint(float x, float y) {
+        Highlight h = getHighlightByTouchPoint(x, y);
+        if (h != null) {
+            return mData.getDataSetByIndex(h.getDataSetIndex());
+        }
+        return null;
+    }
+
+    public Entry getEntryByTouchPoint(float x, float y) {
+        Highlight h = getHighlightByTouchPoint(x, y);
+        if (h != null) {
+            return mData.getEntryForHighlight(h);
+        }
+        return null;
     }
 
     /**

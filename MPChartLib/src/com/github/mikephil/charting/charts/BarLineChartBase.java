@@ -1058,6 +1058,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      * @param y
      * @return
      */
+    @Override
     public Highlight getHighlightByTouchPoint(float x, float y) {
 
         if (mDataNotSet || mData == null) {
@@ -1219,21 +1220,6 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
         Highlight h = getHighlightByTouchPoint(x, y);
         if (h != null) {
             return mData.getEntryForHighlight(h);
-        }
-        return null;
-    }
-
-    /**
-     * returns the DataSet object displayed at the touched position of the chart
-     * 
-     * @param x
-     * @param y
-     * @return
-     */
-    public BarLineScatterCandleDataSet<? extends Entry> getDataSetByTouchPoint(float x, float y) {
-        Highlight h = getHighlightByTouchPoint(x, y);
-        if (h != null) {
-            return mData.getDataSetByIndex(h.getDataSetIndex());
         }
         return null;
     }

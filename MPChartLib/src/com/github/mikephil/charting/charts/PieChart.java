@@ -15,6 +15,8 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.renderer.PieChartRenderer;
+import com.github.mikephil.charting.utils.Highlight;
+import com.github.mikephil.charting.utils.SelectionDetail;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.List;
@@ -203,6 +205,45 @@ public class PieChart extends PieRadarChartBase<PieData> {
                 return true;
 
         return false;
+    }
+
+    @Override
+    public Highlight getHighlightByTouchPoint(float x, float y) {
+
+        float distance = this.distanceToCenter(x, y);
+
+        // check if a slice was touched
+        if (distance > this.getRadius()) {
+            // if no slice was touched, highlight nothing
+        } else {
+
+            float angle = this.getAngleForPoint(x, y);
+
+            angle /= this.getAnimator().getPhaseY();
+
+            int index = this.getIndexForAngle(angle);
+
+            // check if the index could be found
+            if (index < 0) {
+                // do nothing if the index isn't found
+            } else {
+
+                List<SelectionDetail> valsAtIndex = this.getSelectionDetailsAtIndex(index);
+
+                int dataSetIndex = 0;
+
+                // get the dataset that is closest to the selection (PieChart
+                // only
+                // has one DataSet)
+
+                if (dataSetIndex < 0) {
+
+                } else {
+                    return new Highlight(index, dataSetIndex);
+                }
+            }
+        }
+        return null;
     }
 
     /**

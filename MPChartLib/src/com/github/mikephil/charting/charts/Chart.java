@@ -118,6 +118,9 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
     /** if true, touch gestures are enabled on the chart */
     protected boolean mTouchEnabled = true;
 
+    /** if true, multi select is enabled on the chart */
+    private boolean mMultiSelectEnabled = false;
+
     /** the legend object containing all data associated with the legend */
     protected Legend mLegend;
 
@@ -326,6 +329,14 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
             else
                 return false;
         }
+    }
+
+    public boolean isMultiSelectEnabled() {
+        return mMultiSelectEnabled;
+    }
+
+    public void setMultiSelectEnabled(boolean multiSelectEnabled) {
+        mMultiSelectEnabled = multiSelectEnabled;
     }
 
     /**
@@ -562,7 +573,7 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
 
     private boolean addIndexToHighlight(Highlight high) {
         boolean highlightAlreadyAdded = false;
-        if(this.valuesToHighlight()) {
+        if(this.valuesToHighlight() && mMultiSelectEnabled) {
             Highlight[] temp = new Highlight[mIndicesToHightlight.length + 1];
             for (int index = 0; index < mIndicesToHightlight.length; index++) {
                 temp[index] = mIndicesToHightlight[index];

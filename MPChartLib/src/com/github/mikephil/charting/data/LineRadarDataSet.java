@@ -32,6 +32,10 @@ public abstract class LineRadarDataSet<T extends Entry> extends LineScatterCandl
         super(yVals, label);
     }
 
+    public LineRadarDataSet(List<T> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
+    }
+
     /**
      * returns the color that is used for filling the line surface
      * 

@@ -22,6 +22,10 @@ public class BubbleDataSet extends BarLineScatterCandleDataSet<BubbleEntry> {
         super(yVals, label);
     }
 
+    public BubbleDataSet(List<BubbleEntry> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
+    }
+
     /**
      * Sets the width of the circle that surrounds the bubble when highlighted,
      * in dp.
@@ -115,9 +119,7 @@ public class BubbleDataSet extends BarLineScatterCandleDataSet<BubbleEntry> {
             yVals.add(mYVals.get(i).copy());
         }
 
-        BubbleDataSet copied = new BubbleDataSet(yVals, getLabel());
-        copied.mColors = mColors;
-        copied.mHighLightColor = mHighLightColor;
+        BubbleDataSet copied = new BubbleDataSet(yVals, getLabel(), mColors, mHighLightColors);
 
         return copied;
     }

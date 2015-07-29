@@ -10,6 +10,10 @@ public class RadarDataSet extends LineRadarDataSet<Entry> {
         super(yVals, label);
     }
 
+    public RadarDataSet(List<Entry> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
+    }
+
     @Override
     public DataSet<Entry> copy() {
 
@@ -19,9 +23,7 @@ public class RadarDataSet extends LineRadarDataSet<Entry> {
             yVals.add(mYVals.get(i).copy());
         }
 
-        RadarDataSet copied = new RadarDataSet(yVals, getLabel());
-        copied.mColors = mColors;
-        copied.mHighLightColor = mHighLightColor;
+        RadarDataSet copied = new RadarDataSet(yVals, getLabel(), mColors, mHighLightColors);
 
         return copied;
     }

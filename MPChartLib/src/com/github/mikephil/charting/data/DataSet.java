@@ -27,6 +27,12 @@ public abstract class DataSet<T extends Entry> {
     /** List representing all colors that are used for this DataSet */
     protected List<Integer> mColors = null;
 
+    /** default highlight color */
+    protected List<Integer> mHighLightColors = null;
+
+    /** the alpha value used to draw the highlight indicator colour */
+    //protected int mHighLightAlpha = 255;
+
     /** the entries that this dataset represents / holds together */
     protected List<T> mYVals = null;
 
@@ -52,7 +58,7 @@ public abstract class DataSet<T extends Entry> {
     private boolean mVisible = true;
 
     /** if true, y-values are drawn on the chart */
-    protected boolean mDrawValues = true;
+    protected boolean mDrawValues = false;
 
     /** the color used for the value-text */
     private int mValueColor = Color.BLACK;
@@ -89,12 +95,21 @@ public abstract class DataSet<T extends Entry> {
             mYVals = new ArrayList<T>();
 
         mColors = new ArrayList<Integer>();
-
-        // default color
-        mColors.add(Color.rgb(140, 234, 255));
+        mHighLightColors = new ArrayList<Integer>();
+        Integer defaultColor = Color.argb(90, 140, 234, 255);
+        Integer defaultHighLightColor = Color.argb(255, 140, 234, 255);;
+        mColors.add(defaultColor);
+        mHighLightColors.add(defaultHighLightColor);
 
         calcMinMax(mLastStart, mLastEnd);
         calcYValueSum();
+    }
+
+    public DataSet(List<T> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        this(yVals, label);
+        mColors = colors;
+        mHighLightColors = highLightColors;
+
     }
 
     /**
@@ -247,7 +262,7 @@ public abstract class DataSet<T extends Entry> {
      * does calculations at runtime. Do not over-use in performance critical
      * situations.
      * 
-     * @param xIndex
+     * @param x
      * @return
      */
     public List<T> getEntriesForXIndex(int x) {
@@ -685,6 +700,113 @@ public abstract class DataSet<T extends Entry> {
     public void resetColors() {
         mColors = new ArrayList<Integer>();
     }
+
+    /**
+     * Sets the highlight colors that should be used fore this DataSet. Colors are reused
+     * as soon as the number of Entries the DataSet represents is higher than
+     * the size of the highlight colors array. If you are using colors from the resources,
+     * make sure that the colors are already prepared (by calling
+     * getResources().getColor(...)) before adding them to the DataSet.
+     *
+     * @param highLightColors
+     */
+    public void setHighLightColors(List<Integer> highLightColors) {
+        this.mHighLightColors = highLightColors;
+    }
+
+    /**
+     * Sets the highlight colors that should be used fore this DataSet. Colors are reused
+     * as soon as the number of Entries the DataSet represents is higher than
+     * the size of the highlight colors array. If you are using colors from the resources,
+     * make sure that the colors are already prepared (by calling
+     * getResources().getColor(...)) before adding them to the DataSet.
+     *
+     * @param highLightColors
+     */
+    public void setHighLightColors(int[] highLightColors) {
+        this.mHighLightColors = ColorTemplate.createColors(highLightColors);
+    }
+
+    /**
+     * Sets the highlight colors that should be used fore this DataSet. Colors are reused
+     * as soon as the number of Entries the DataSet represents is higher than
+     * the size of the highlight colors array. You can use
+     * "new int[] { R.color.red, R.color.green, ... }" to provide colors for
+     * this method. Internally, the colors are resolved using
+     * getResources().getColor(...)
+     *
+     * @param highLightColors
+     */
+    public void setHighLightColors(int[] highLightColors, Context c) {
+
+        List<Integer> clrs = new ArrayList<Integer>();
+
+        for (int color : mHighLightColors) {
+            clrs.add(c.getResources().getColor(color));
+        }
+
+        mHighLightColors = clrs;
+    }
+
+    /**
+     * Adds a new highlight color to the highlight colors array of the DataSet.
+     *
+     * @param highLightColor
+     */
+    public void addHighLightColor(int highLightColor) {
+        if (mHighLightColors == null)
+            mHighLightColors = new ArrayList<Integer>();
+        mHighLightColors.add(highLightColor);
+    }
+
+    /**
+     * Sets the one and ONLY highlight color that should be used for this DataSet.
+     * Internally, this recreates the highlight colors array and adds the specified color.
+     *
+     * @param highLightColor
+     */
+    public void setHighLightColor(int highLightColor) {
+        resetHighLightColors();
+        mHighLightColors.add(highLightColor);
+    }
+
+    /**
+     * returns all the highlight colors that are set for this DataSet
+     *
+     * @return
+     */
+    public List<Integer> getHighLightColors() {
+        return mHighLightColors;
+    }
+
+    /**
+     * Returns the highlight color at the given index of the DataSet's highlight color array.
+     * Performs a IndexOutOfBounds check by modulus.
+     *
+     * @param index
+     * @return
+     */
+    public int getHighLightColor(int index) {
+        return mHighLightColors.get(index % mHighLightColors.size());
+    }
+
+    /**
+     * Returns the first highlight color (index 0) of the highlight colors-array this DataSet
+     * contains.
+     *
+     * @return
+     */
+    public int getHighLightColor() {
+        return mHighLightColors.get(0);
+    }
+
+    /**
+     * Resets all highlight colors of this DataSet and recreates the highlight colors array.
+     */
+    public void resetHighLightColors() {
+        mHighLightColors = new ArrayList<Integer>();
+    }
+
 
     /**
      * If set to true, value highlighting is enabled which means that values can

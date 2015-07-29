@@ -47,6 +47,10 @@ public class CandleDataSet extends LineScatterCandleRadarDataSet<CandleEntry> {
         super(yVals, label);
     }
 
+    public CandleDataSet(List<CandleEntry> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
+    }
+
     @Override
     public DataSet<CandleEntry> copy() {
 
@@ -56,11 +60,9 @@ public class CandleDataSet extends LineScatterCandleRadarDataSet<CandleEntry> {
             yVals.add(((CandleEntry) mYVals.get(i)).copy());
         }
 
-        CandleDataSet copied = new CandleDataSet(yVals, getLabel());
-        copied.mColors = mColors;
+        CandleDataSet copied = new CandleDataSet(yVals, getLabel(), mColors, mHighLightColors);
         copied.mShadowWidth = mShadowWidth;
         copied.mBodySpace = mBodySpace;
-        copied.mHighLightColor = mHighLightColor;
         copied.mIncreasingPaintStyle = mIncreasingPaintStyle;
         copied.mDecreasingPaintStyle = mDecreasingPaintStyle;
         copied.mShadowColor = mShadowColor;

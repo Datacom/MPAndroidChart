@@ -40,10 +40,7 @@ public class BarChartRenderer extends DataRenderer {
 
         mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mHighlightPaint.setStyle(Paint.Style.FILL);
-        mHighlightPaint.setColor(Color.rgb(0, 0, 0));
-        // set alpha after color
-        mHighlightPaint.setAlpha(120);
-
+        mHighlightPaint.setColor(Color.argb(0, 0, 0, 0));
         mShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mShadowPaint.setStyle(Paint.Style.FILL);
     }
@@ -116,10 +113,15 @@ public class BarChartRenderer extends DataRenderer {
                             mViewPortHandler.contentBottom(), mShadowPaint);
                 }
 
+                mRenderPaint.setColor(dataSet.getColor(j / 4));
+
+                c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                        buffer.buffer[j + 3], mWhiteBasePaint);
+
                 // Set the color for the currently drawn value. If the index
                 // is
                 // out of bounds, reuse colors.
-                mRenderPaint.setColor(dataSet.getColor(j / 4));
+
                 c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
                         buffer.buffer[j + 3], mRenderPaint);
             }
@@ -140,6 +142,9 @@ public class BarChartRenderer extends DataRenderer {
                             buffer.buffer[j + 2],
                             mViewPortHandler.contentBottom(), mShadowPaint);
                 }
+
+                c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                        buffer.buffer[j + 3], mWhiteBasePaint);
 
                 c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
                         buffer.buffer[j + 3], mRenderPaint);
@@ -343,7 +348,6 @@ public class BarChartRenderer extends DataRenderer {
             Transformer trans = mChart.getTransformer(set.getAxisDependency());
 
             mHighlightPaint.setColor(set.getHighLightColor());
-            mHighlightPaint.setAlpha(set.getHighLightAlpha());
 
             // check outofbounds
             if (index >= 0
@@ -374,11 +378,13 @@ public class BarChartRenderer extends DataRenderer {
 
                 prepareBarHighlight(x, y1, y2, barspaceHalf, trans);
 
+                c.drawRect(mBarRect, mWhiteBasePaint);
+
                 c.drawRect(mBarRect, mHighlightPaint);
 
                 if (mChart.isDrawHighlightArrowEnabled()) {
 
-                    mHighlightPaint.setAlpha(255);
+                    //mHighlightPaint.setAlpha(255);
 
                     // distance between highlight arrow and bar
                     float offsetY = mAnimator.getPhaseY() * 0.07f;

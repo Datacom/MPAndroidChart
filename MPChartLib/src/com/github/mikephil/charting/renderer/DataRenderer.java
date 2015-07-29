@@ -18,6 +18,9 @@ public abstract class DataRenderer extends Renderer {
     /** the animator object used to perform animations on the chart data */
     protected ChartAnimator mAnimator;
 
+    /** paint used as a base for other paints to be drawn over the top */
+    protected Paint mWhiteBasePaint;
+
     /** main paint object used for rendering */
     protected Paint mRenderPaint;
 
@@ -35,6 +38,10 @@ public abstract class DataRenderer extends Renderer {
     public DataRenderer(ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(viewPortHandler);
         this.mAnimator = animator;
+
+        mWhiteBasePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mWhiteBasePaint.setStyle(Style.FILL);
+        mWhiteBasePaint.setColor(Color.argb(255, 255, 255, 255));
 
         mRenderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mRenderPaint.setStyle(Style.FILL);

@@ -119,7 +119,7 @@ public abstract class Chart<T extends ChartData<? extends DataSet<? extends Entr
     protected boolean mTouchEnabled = true;
 
     /** if true, multi select is enabled on the chart */
-    private boolean mMultiSelectEnabled = false;
+    private boolean mMultiSelectEnabled = true;
 
     /** the legend object containing all data associated with the legend */
     protected Legend mLegend;

@@ -50,6 +50,20 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
         mCircleColors.add(Color.rgb(140, 234, 255));
     }
 
+    public LineDataSet(List<Entry> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
+
+        // mCircleSize = Utils.convertDpToPixel(4f);
+        // mLineWidth = Utils.convertDpToPixel(1f);
+
+        mCircleColors = new ArrayList<Integer>();
+
+        // default colors
+        // mColors.add(Color.rgb(192, 255, 140));
+        // mColors.add(Color.rgb(255, 247, 140));
+        mCircleColors.add(Color.rgb(140, 234, 255));
+    }
+
     @Override
     public DataSet<Entry> copy() {
 
@@ -59,14 +73,12 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
             yVals.add(mYVals.get(i).copy());
         }
 
-        LineDataSet copied = new LineDataSet(yVals, getLabel());
-        copied.mColors = mColors;
+        LineDataSet copied = new LineDataSet(yVals, getLabel(), mColors, mHighLightColors);
         copied.mCircleSize = mCircleSize;
         copied.mCircleColors = mCircleColors;
         copied.mDashPathEffect = mDashPathEffect;
         copied.mDrawCircles = mDrawCircles;
         copied.mDrawCubic = mDrawCubic;
-        copied.mHighLightColor = mHighLightColor;
 
         return copied;
     }

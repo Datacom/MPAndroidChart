@@ -20,6 +20,11 @@ public abstract class LineScatterCandleRadarDataSet<T extends Entry> extends Bar
         mHighlightLineWidth = Utils.convertDpToPixel(0.5f);
     }
 
+    public LineScatterCandleRadarDataSet(List<T> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
+        mHighlightLineWidth = Utils.convertDpToPixel(0.5f);
+    }
+
     /**
      * Enables / disables the horizontal highlight-indicator. If disabled, the indicator is not drawn.
      * @param enabled

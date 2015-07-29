@@ -551,9 +551,8 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
             if (yVal == Float.NaN)
                 continue;
 
-            float y = yVal * mAnimator.getPhaseY(); // get
-                                                                            // the
-            // y-position
+            float y = yVal * mAnimator.getPhaseY(); // get the
+                                                    // y-position
 
             float[] pts = new float[] {
                     xIndex, mChart.getYChartMax(), xIndex, mChart.getYChartMin(), mChart.getXChartMin(), y,

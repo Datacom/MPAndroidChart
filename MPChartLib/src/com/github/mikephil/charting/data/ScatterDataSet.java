@@ -32,6 +32,12 @@ public class ScatterDataSet extends LineScatterCandleRadarDataSet<Entry> {
         // mShapeSize = Utils.convertDpToPixel(8f);
     }
 
+    public ScatterDataSet(List<Entry> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
+
+        // mShapeSize = Utils.convertDpToPixel(8f);
+    }
+
     @Override
     public DataSet<Entry> copy() {
 
@@ -41,12 +47,10 @@ public class ScatterDataSet extends LineScatterCandleRadarDataSet<Entry> {
             yVals.add(mYVals.get(i).copy());
         }
 
-        ScatterDataSet copied = new ScatterDataSet(yVals, getLabel());
-        copied.mColors = mColors;
+        ScatterDataSet copied = new ScatterDataSet(yVals, getLabel(), mColors, mHighLightColors);
         copied.mShapeSize = mShapeSize;
         copied.mScatterShape = mScatterShape;
         copied.mCustomScatterPath = mCustomScatterPath;
-        copied.mHighLightColor = mHighLightColor;
 
         return copied;
     }

@@ -20,9 +20,6 @@ public class BarDataSet extends BarLineScatterCandleDataSet<BarEntry> {
     /** the color used for drawing the bar shadows */
     private int mBarShadowColor = Color.rgb(215, 215, 215);
 
-    /** the alpha value used to draw the highlight indicator bar */
-    private int mHighLightAlpha = 120;
-
     /**
      * the overall entry count, including counting each stack-value individually
      */
@@ -38,7 +35,12 @@ public class BarDataSet extends BarLineScatterCandleDataSet<BarEntry> {
     public BarDataSet(List<BarEntry> yVals, String label) {
         super(yVals, label);
 
-        mHighLightColor = Color.rgb(0, 0, 0);
+        calcStackSize(yVals);
+        calcEntryCountIncludingStacks(yVals);
+    }
+
+    public BarDataSet(List<BarEntry> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
+        super(yVals, label, colors, highLightColors);
 
         calcStackSize(yVals);
         calcEntryCountIncludingStacks(yVals);
@@ -53,14 +55,11 @@ public class BarDataSet extends BarLineScatterCandleDataSet<BarEntry> {
             yVals.add(((BarEntry) mYVals.get(i)).copy());
         }
 
-        BarDataSet copied = new BarDataSet(yVals, getLabel());
-        copied.mColors = mColors;
+        BarDataSet copied = new BarDataSet(yVals, getLabel(), mColors, mHighLightColors);
         copied.mStackSize = mStackSize;
         copied.mBarSpace = mBarSpace;
         copied.mBarShadowColor = mBarShadowColor;
         copied.mStackLabels = mStackLabels;
-        copied.mHighLightColor = mHighLightColor;
-        copied.mHighLightAlpha = mHighLightAlpha;
 
         return copied;
     }
@@ -182,9 +181,9 @@ public class BarDataSet extends BarLineScatterCandleDataSet<BarEntry> {
      * 
      * @param alpha
      */
-    public void setHighLightAlpha(int alpha) {
-        mHighLightAlpha = alpha;
-    }
+    //public void setHighLightAlpha(int alpha) {
+        //mHighLightAlpha = alpha;
+    //}
 
     /**
      * Returns the alpha value (transparency) that is used for drawing the
@@ -192,9 +191,9 @@ public class BarDataSet extends BarLineScatterCandleDataSet<BarEntry> {
      * 
      * @return
      */
-    public int getHighLightAlpha() {
-        return mHighLightAlpha;
-    }
+    //public int getHighLightAlpha() {
+     //   return mHighLightAlpha;
+    //}
 
     /**
      * Sets labels for different values of bar-stacks, in case there are one.

@@ -108,8 +108,8 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
         if (entries.size() < 1)
             return;
 
-        mRenderPaint.setStrokeWidth(dataSet.getLineWidth());
-        mRenderPaint.setPathEffect(dataSet.getDashPathEffect());
+        //mRenderPaint.setStrokeWidth(dataSet.getLineWidth());
+        //mRenderPaint.setPathEffect(dataSet.getDashPathEffect());
 
         // if drawing cubic lines is enabled
         if (dataSet.isDrawCubicEnabled()) {
@@ -225,7 +225,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
 
         mRenderPaint.setColor(dataSet.getColor());
 
-        mRenderPaint.setStyle(Paint.Style.STROKE);
+        //mRenderPaint.setStyle(Paint.Style.STROKE);
 
         trans.pathValueToPixel(cubicPath);
 
@@ -247,14 +247,14 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
 
         mRenderPaint.setStyle(Paint.Style.FILL);
 
-        mRenderPaint.setColor(dataSet.getFillColor());
+        //mRenderPaint.setColor(dataSet.getFillColor());
         // filled is drawn with less alpha
-        mRenderPaint.setAlpha(dataSet.getFillAlpha());
+        //mRenderPaint.setAlpha(dataSet.getFillAlpha());
 
         trans.pathValueToPixel(spline);
         mBitmapCanvas.drawPath(spline, mRenderPaint);
 
-        mRenderPaint.setAlpha(255);
+        //mRenderPaint.setAlpha(255);
     }
 
     /**
@@ -319,6 +319,9 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
 
                 // get the color that is set for this line-segment
                 mRenderPaint.setColor(dataSet.getColor(j / 4 + minx));
+
+                canvas.drawLine(buffer.buffer[j], buffer.buffer[j + 1],
+                        buffer.buffer[j + 2], buffer.buffer[j + 3], mWhiteBasePaint);
 
                 canvas.drawLine(buffer.buffer[j], buffer.buffer[j + 1],
                         buffer.buffer[j + 2], buffer.buffer[j + 3], mRenderPaint);
@@ -539,7 +542,8 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
                 continue;
 
             mHighlightPaint.setColor(set.getHighLightColor());
-            mHighlightPaint.setStrokeWidth(set.getHighlightLineWidth());
+
+            //mHighlightPaint.setStrokeWidth(set.getHighlightLineWidth());
 
             int xIndex = indices[i].getXIndex(); // get the
                                                  // x-position

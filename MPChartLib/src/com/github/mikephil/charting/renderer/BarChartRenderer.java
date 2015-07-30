@@ -38,9 +38,8 @@ public class BarChartRenderer extends DataRenderer {
         super(animator, viewPortHandler);
         this.mChart = chart;
 
-        mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mHighlightPaint.setStyle(Paint.Style.FILL);
-        mHighlightPaint.setColor(Color.argb(0, 0, 0, 0));
+        //mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        //mHighlightPaint.setStyle(Paint.Style.FILL);
         mShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mShadowPaint.setStyle(Paint.Style.FILL);
     }
@@ -379,7 +378,6 @@ public class BarChartRenderer extends DataRenderer {
                 prepareBarHighlight(x, y1, y2, barspaceHalf, trans);
 
                 c.drawRect(mBarRect, mWhiteBasePaint);
-
                 c.drawRect(mBarRect, mHighlightPaint);
 
                 if (mChart.isDrawHighlightArrowEnabled()) {
@@ -404,6 +402,8 @@ public class BarChartRenderer extends DataRenderer {
                     arrow.lineTo(x + 0.4f + arrowWidth, yArrow + offsetY + arrowHeight);
 
                     trans.pathValueToPixel(arrow);
+
+                    c.drawPath(arrow, mWhiteBasePaint);
                     c.drawPath(arrow, mHighlightPaint);
                 }
             }

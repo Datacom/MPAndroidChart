@@ -30,7 +30,7 @@ public class ScatterChartRenderer extends LineScatterCandleRadarRenderer {
         super(animator, viewPortHandler);
         mChart = chart;
 
-        mRenderPaint.setStrokeWidth(Utils.convertDpToPixel(1f));
+        //mRenderPaint.setStrokeWidth(Utils.convertDpToPixel(1f));
     }
 
     @Override

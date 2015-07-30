@@ -30,10 +30,10 @@ public class RadarChartRenderer extends LineScatterCandleRadarRenderer {
         super(animator, viewPortHandler);
         mChart = chart;
 
-        mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mHighlightPaint.setStyle(Paint.Style.STROKE);
-        mHighlightPaint.setStrokeWidth(2f);
-        mHighlightPaint.setColor(Color.rgb(255, 187, 115));
+        //mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        //mHighlightPaint.setStyle(Paint.Style.STROKE);
+        //mHighlightPaint.setStrokeWidth(2f);
+        //mHighlightPaint.setColor(Color.rgb(255, 187, 115));
 
         mWebPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mWebPaint.setStyle(Paint.Style.STROKE);

@@ -31,10 +31,10 @@ public class BubbleChartRenderer extends DataRenderer {
         super(animator, viewPortHandler);
         mChart = chart;
 
-        mRenderPaint.setStyle(Style.FILL);
+        //mRenderPaint.setStyle(Style.FILL);
 
-        mHighlightPaint.setStyle(Style.STROKE);
-        mHighlightPaint.setStrokeWidth(Utils.convertDpToPixel(1.5f));
+        //mHighlightPaint.setStyle(Style.STROKE);
+        //mHighlightPaint.setStrokeWidth(Utils.convertDpToPixel(1.5f));
     }
 
     @Override
@@ -83,7 +83,7 @@ public class BubbleChartRenderer extends DataRenderer {
 
         trans.pointValuesToPixel(sizeBuffer);
 
-        // calcualte the full width of 1 step on the x-axis
+        // calculate the full width of 1 step on the x-axis
         final float maxBubbleWidth = Math.abs(sizeBuffer[2] - sizeBuffer[0]);
         final float maxBubbleHeight = Math.abs(mViewPortHandler.contentBottom() - mViewPortHandler.contentTop());
         final float referenceSize = Math.min(maxBubbleHeight, maxBubbleWidth);
@@ -108,9 +108,9 @@ public class BubbleChartRenderer extends DataRenderer {
             if (!mViewPortHandler.isInBoundsRight(pointBuffer[0] - shapeHalf))
                 break;
 
-            final int color = dataSet.getColor(entry.getXIndex());
+            mRenderPaint.setColor(dataSet.getColor(entry.getXIndex()));
 
-            mRenderPaint.setColor(color);
+            c.drawCircle(pointBuffer[0], pointBuffer[1], shapeHalf, mWhiteBasePaint);
             c.drawCircle(pointBuffer[0], pointBuffer[1], shapeHalf, mRenderPaint);
         }
     }
@@ -174,6 +174,11 @@ public class BubbleChartRenderer extends DataRenderer {
                     final BubbleEntry entry = entries.get(j / 2 + minx);
 
                     final float val = entry.getSize();
+
+                    c.drawText(dataSet.getValueFormatter().getFormattedValue(val),
+                            x,
+                            y + (0.5f * lineHeight),
+                            mWhiteBasePaint);
 
                     c.drawText(dataSet.getValueFormatter().getFormattedValue(val),
                             x,
@@ -247,15 +252,16 @@ public class BubbleChartRenderer extends DataRenderer {
             if (indice.getXIndex() < minx || indice.getXIndex() >= maxx)
                 continue;
 
-            final int originalColor = dataSet.getColor(entry.getXIndex());
+            //final int originalColor = dataSet.getColor(entry.getXIndex());
 
-            Color.RGBToHSV(Color.red(originalColor), Color.green(originalColor),
-                    Color.blue(originalColor), _hsvBuffer);
-            _hsvBuffer[2] *= 0.5f;
-            final int color = Color.HSVToColor(Color.alpha(originalColor), _hsvBuffer);
+            //Color.RGBToHSV(Color.red(originalColor), Color.green(originalColor),
+                    //Color.blue(originalColor), _hsvBuffer);
+            //_hsvBuffer[2] *= 0.5f;
+            //final int color = Color.HSVToColor(Color.alpha(originalColor), _hsvBuffer);
 
-            mHighlightPaint.setColor(color);
-            mHighlightPaint.setStrokeWidth(dataSet.getHighlightCircleWidth());
+            mHighlightPaint.setColor(dataSet.getHighLightColor(entry.getXIndex()));
+
+            //mHighlightPaint.setStrokeWidth(dataSet.getHighlightCircleWidth());
             c.drawCircle(pointBuffer[0], pointBuffer[1], shapeHalf, mHighlightPaint);
         }
     }

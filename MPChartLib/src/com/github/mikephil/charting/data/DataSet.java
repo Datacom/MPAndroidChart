@@ -97,7 +97,7 @@ public abstract class DataSet<T extends Entry> {
         mColors = new ArrayList<Integer>();
         mHighLightColors = new ArrayList<Integer>();
         Integer defaultColor = Color.argb(90, 140, 234, 255);
-        Integer defaultHighLightColor = Color.argb(255, 140, 234, 255);;
+        Integer defaultHighLightColor = Color.argb(255, 140, 234, 255);
         mColors.add(defaultColor);
         mHighLightColors.add(defaultHighLightColor);
 

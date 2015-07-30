@@ -9,8 +9,8 @@ import java.util.List;
  */
 public abstract class LineScatterCandleRadarDataSet<T extends Entry> extends BarLineScatterCandleDataSet<T> {
 
-    protected boolean mDrawVerticalHighlightIndicator = true;
-    protected boolean mDrawHorizontalHighlightIndicator = true;
+    protected boolean mDrawVerticalHighlightIndicator = false;
+    protected boolean mDrawHorizontalHighlightIndicator = false;
 
     /** the width of the highlight indicator lines */
     protected float mHighlightLineWidth = 0.5f;

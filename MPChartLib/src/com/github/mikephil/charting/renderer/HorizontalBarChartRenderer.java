@@ -81,8 +81,16 @@ public class HorizontalBarChartRenderer extends BarChartRenderer {
             if (mChart.isDrawBarShadowEnabled()) {
                 c.drawRect(mViewPortHandler.contentLeft(), buffer.buffer[j + 1],
                         mViewPortHandler.contentRight(),
+                        buffer.buffer[j + 3], mWhiteBasePaint);
+
+                c.drawRect(mViewPortHandler.contentLeft(), buffer.buffer[j + 1],
+                        mViewPortHandler.contentRight(),
                         buffer.buffer[j + 3], mShadowPaint);
             }
+
+            mRenderPaint.setColor(dataSet.getColor(j / 4));
+            c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                    buffer.buffer[j + 3], mWhiteBasePaint);
 
             // Set the color for the currently drawn value. If the index
             // is

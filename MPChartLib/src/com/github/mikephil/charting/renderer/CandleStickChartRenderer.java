@@ -96,7 +96,7 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
 
         trans.pointValuesToPixel(shadowBuffer.buffer);
 
-        mRenderPaint.setStrokeWidth(dataSet.getShadowWidth());
+        //mRenderPaint.setStrokeWidth(dataSet.getShadowWidth());
 
         // draw the body
         for (int j = 0; j < range; j += 4) {
@@ -138,7 +138,11 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
                 );
             }
 
-            mRenderPaint.setStyle(Paint.Style.STROKE);
+            //mRenderPaint.setStyle(Paint.Style.STROKE);
+
+            c.drawLine(shadowBuffer.buffer[j], shadowBuffer.buffer[j + 1],
+                    shadowBuffer.buffer[j + 2], shadowBuffer.buffer[j + 3],
+                    mWhiteBasePaint);
 
             // draw the shadow
             c.drawLine(shadowBuffer.buffer[j], shadowBuffer.buffer[j + 1],
@@ -161,6 +165,7 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
 
                 mRenderPaint.setStyle(dataSet.getDecreasingPaintStyle());
                 // draw the body
+                c.drawRect(leftBody, close, rightBody, open, mWhiteBasePaint);
                 c.drawRect(leftBody, close, rightBody, open, mRenderPaint);
 
             } else if(open < close) {
@@ -177,6 +182,7 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
             } else { // equal values
                 
                 mRenderPaint.setColor(dataSet.getShadowColor());
+                c.drawLine(leftBody, open, rightBody, close, mWhiteBasePaint);
                 c.drawLine(leftBody, open, rightBody, close, mRenderPaint);
             }
         }
@@ -294,7 +300,7 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
                 continue;
 
             mHighlightPaint.setColor(set.getHighLightColor());
-            mHighlightPaint.setStrokeWidth(set.getHighlightLineWidth());
+            //mHighlightPaint.setStrokeWidth(set.getHighlightLineWidth());
 
             CandleEntry e = set.getEntryForXIndex(xIndex);
 

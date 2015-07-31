@@ -18,6 +18,7 @@ import com.github.mikephil.charting.utils.Highlight;
 import com.github.mikephil.charting.utils.Transformer;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LineChartRenderer extends LineScatterCandleRadarRenderer {
@@ -95,7 +96,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
         for (LineDataSet set : lineData.getDataSets()) {
 
             if (set.isVisible())
-                drawDataSet(c, set);
+                drawDataSet(c, set, );
         }
 
         c.drawBitmap(mDrawBitmap, 0, 0, mRenderPaint);
@@ -550,6 +551,20 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
 
             if (xIndex > mChart.getXChartMax() * mAnimator.getPhaseX())
                 continue;
+
+            List<Entry> entry = new ArrayList<Entry>();
+            set.getEntryForXIndex(xIndex);
+
+            // if drawing cubic lines is enabled
+
+            if (set.isDrawCubicEnabled()) {
+
+                drawCubic(c, set, entry, );
+
+                // draw normal (straight) lines
+            } else {
+                drawLinear(c, set, entry);
+            }
 
             final float yVal = set.getYValForXIndex(xIndex);
             if (yVal == Float.NaN)

@@ -101,17 +101,14 @@ public class RadarChartRenderer extends LineScatterCandleRadarRenderer {
         // draw filled
         if (dataSet.isDrawFilledEnabled()) {
             mRenderPaint.setStyle(Paint.Style.FILL);
-            mRenderPaint.setAlpha(dataSet.getFillAlpha());
+            mRenderPaint.setColor(dataSet.getFillColor());
             c.drawPath(surface, mRenderPaint);
-            mRenderPaint.setAlpha(255);
         }
 
         mRenderPaint.setStrokeWidth(dataSet.getLineWidth());
         mRenderPaint.setStyle(Paint.Style.STROKE);
 
-        // draw the line (only if filled is disabled or alpha is below 255)
-        if (!dataSet.isDrawFilledEnabled() || dataSet.getFillAlpha() < 255)
-            c.drawPath(surface, mRenderPaint);
+        c.drawPath(surface, mRenderPaint);
     }
 
     @Override

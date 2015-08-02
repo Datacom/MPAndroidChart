@@ -170,7 +170,6 @@ public class RealtimeLineChartActivity extends DemoBase implements
         set.setCircleColor(Color.WHITE);
         set.setLineWidth(2f);
         set.setCircleSize(4f);
-        set.setFillAlpha(65);
         set.setFillColor(ColorTemplate.getHoloBlue());
         set.setHighLightColor(Color.rgb(244, 117, 117));
         set.setValueTextColor(Color.WHITE);

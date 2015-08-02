@@ -40,8 +40,8 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
      */
     protected Canvas mBitmapCanvas;
 
-    protected Path cubicPath = new Path();
-    protected Path cubicFillPath = new Path();
+    protected Path mCubicPath = new Path();
+    protected Path mCubicFillPath = new Path();
 
     protected LineBuffer[] mLineBuffers;
 
@@ -96,13 +96,13 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
         for (LineDataSet set : lineData.getDataSets()) {
 
             if (set.isVisible())
-                drawDataSet(c, set, );
+                drawDataSet(c, set, false);
         }
 
         c.drawBitmap(mDrawBitmap, 0, 0, mRenderPaint);
     }
 
-    protected void drawDataSet(Canvas c, LineDataSet dataSet) {
+    protected void drawDataSet(Canvas c, LineDataSet dataSet, boolean drawHighlighted) {
 
         List<Entry> entries = dataSet.getYVals();
 
@@ -115,7 +115,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
         // if drawing cubic lines is enabled
         if (dataSet.isDrawCubicEnabled()) {
 
-            drawCubic(c, dataSet, entries);
+            drawCubic(c, dataSet, entries, false);
 
             // draw normal (straight) lines
         } else {
@@ -132,7 +132,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
      * @param dataSet
      * @param entries
      */
-    protected void drawCubic(Canvas c, LineDataSet dataSet, List<Entry> entries) {
+    protected void drawCubic(Canvas c, LineDataSet dataSet, List<Entry> entries, boolean drawHighlighted) {
 
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
 
@@ -147,10 +147,11 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
 
         float intensity = dataSet.getCubicIntensity();
 
-        cubicPath.reset();
+        mCubicPath.reset();
 
         int size = (int) Math.ceil((maxx - minx) * phaseX + minx);
 
+        //*&* HERE
         if (size - minx >= 2) {
 
             float prevDx = 0f;
@@ -164,7 +165,11 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
             Entry next = entries.get(minx + 1);
 
             // let the spline start
-            cubicPath.moveTo(cur.getXIndex(), cur.getVal() * phaseY);
+            mCubicPath.moveTo(cur.getXIndex(), cur.getVal() * phaseY);
+
+            Path entryLine = new Path();
+
+            entryLine.moveTo(cur.getXIndex(), cur.getVal() * phaseY);
 
             prevDx = (cur.getXIndex() - prev.getXIndex()) * intensity;
             prevDy = (cur.getVal() - prev.getVal()) * intensity;
@@ -173,9 +178,26 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
             curDy = (next.getVal() - cur.getVal()) * intensity;
 
             // the first cubic
-            cubicPath.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
+            mCubicPath.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
                     cur.getXIndex() - curDx,
                     (cur.getVal() - curDy) * phaseY, cur.getXIndex(), cur.getVal() * phaseY);
+
+            entryLine.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
+                    cur.getXIndex() - curDx,
+                    (cur.getVal() - curDy) * phaseY, cur.getXIndex(), cur.getVal() * phaseY);
+
+            if(!drawHighlighted) {
+                mRenderPaint.setColor(dataSet.getColor(cur.getXIndex()));
+            }
+            else {
+                mRenderPaint.setColor(dataSet.getHighLightColor(cur.getXIndex()));
+            }
+
+            mRenderPaint.setStyle(Paint.Style.STROKE);
+
+            trans.pathValueToPixel(entryLine);
+
+            mBitmapCanvas.drawPath(entryLine, mRenderPaint);
 
             for (int j = minx + 1, count = Math.min(size, entries.size() - 1); j < count; j++) {
 
@@ -189,9 +211,30 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
                 curDx = (next.getXIndex() - prev.getXIndex()) * intensity;
                 curDy = (next.getVal() - prev.getVal()) * intensity;
 
-                cubicPath.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
+                mCubicPath.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
                         cur.getXIndex() - curDx,
                         (cur.getVal() - curDy) * phaseY, cur.getXIndex(), cur.getVal() * phaseY);
+
+                Path entryCubicPath = new Path();
+
+                entryCubicPath.moveTo(prev.getXIndex(), prev.getVal() * phaseY);
+
+                entryCubicPath.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
+                        cur.getXIndex() - curDx,
+                        (cur.getVal() - curDy) * phaseY, cur.getXIndex(), cur.getVal() * phaseY);
+
+                if(!drawHighlighted) {
+                    mRenderPaint.setColor(dataSet.getColor(cur.getXIndex()));
+                }
+                else {
+                    mRenderPaint.setColor(dataSet.getHighLightColor(cur.getXIndex()));
+                }
+
+                mRenderPaint.setStyle(Paint.Style.STROKE);
+
+                trans.pathValueToPixel(entryCubicPath);
+
+                mBitmapCanvas.drawPath(entryCubicPath, mRenderPaint);
             }
 
             if (size > entries.size() - 1) {
@@ -208,7 +251,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
                 curDy = (next.getVal() - prev.getVal()) * intensity;
 
                 // the last cubic
-                cubicPath.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
+                mCubicPath.cubicTo(prev.getXIndex() + prevDx, (prev.getVal() + prevDy) * phaseY,
                         cur.getXIndex() - curDx,
                         (cur.getVal() - curDy) * phaseY, cur.getXIndex(), cur.getVal() * phaseY);
             }
@@ -217,20 +260,15 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
         // if filled is enabled, close the path
         if (dataSet.isDrawFilledEnabled()) {
 
-            cubicFillPath.reset();
-            cubicFillPath.addPath(cubicPath);
+            mCubicFillPath.reset();
+            mCubicFillPath.addPath(mCubicPath);
             // create a new path, this is bad for performance
-            drawCubicFill(dataSet, cubicFillPath, trans,
+            drawCubicFill(dataSet, mCubicFillPath, trans,
                     entryFrom.getXIndex(), entryFrom.getXIndex() + size);
         }
 
-        mRenderPaint.setColor(dataSet.getColor());
 
-        //mRenderPaint.setStyle(Paint.Style.STROKE);
-
-        trans.pathValueToPixel(cubicPath);
-
-        mBitmapCanvas.drawPath(cubicPath, mRenderPaint);
+        //mBitmapCanvas.drawPath(mCubicPath, mRenderPaint);
 
         mRenderPaint.setPathEffect(null);
     }
@@ -249,13 +287,9 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
         mRenderPaint.setStyle(Paint.Style.FILL);
 
         //mRenderPaint.setColor(dataSet.getFillColor());
-        // filled is drawn with less alpha
-        //mRenderPaint.setAlpha(dataSet.getFillAlpha());
 
         trans.pathValueToPixel(spline);
         mBitmapCanvas.drawPath(spline, mRenderPaint);
-
-        //mRenderPaint.setAlpha(255);
     }
 
     /**
@@ -290,8 +324,11 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
 
         int minx = Math.max(dataSet.getEntryPosition(entryFrom), 0);
         int maxx = Math.min(dataSet.getEntryPosition(entryTo) + 1, entries.size());
+        int range = 0;
 
-        int range = (maxx - minx) * 4 - 4;
+        if(maxx > 0) {
+            range = (maxx - minx) * 4 - 4;
+        }
 
         LineBuffer buffer = mLineBuffers[dataSetIndex];
         buffer.setPhases(phaseX, phaseY);
@@ -350,10 +387,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
             Transformer trans) {
 
         mRenderPaint.setStyle(Paint.Style.FILL);
-
         mRenderPaint.setColor(dataSet.getFillColor());
-        // filled is drawn with less alpha
-        mRenderPaint.setAlpha(dataSet.getFillAlpha());
 
         Path filled = generateFilledPath(
                 entries,
@@ -363,9 +397,6 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
         trans.pathValueToPixel(filled);
 
         c.drawPath(filled, mRenderPaint);
-
-        // restore alpha
-        mRenderPaint.setAlpha(255);
     }
 
     /**
@@ -542,8 +573,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
             if (set == null || !set.isHighlightEnabled())
                 continue;
 
-            mHighlightPaint.setColor(set.getHighLightColor());
-
+            //mHighlightPaint.setColor(set.getHighLightColor());
             //mHighlightPaint.setStrokeWidth(set.getHighlightLineWidth());
 
             int xIndex = indices[i].getXIndex(); // get the
@@ -559,7 +589,7 @@ public class LineChartRenderer extends LineScatterCandleRadarRenderer {
 
             if (set.isDrawCubicEnabled()) {
 
-                drawCubic(c, set, entry, );
+                drawCubic(c, set, entry, true);
 
                 // draw normal (straight) lines
             } else {

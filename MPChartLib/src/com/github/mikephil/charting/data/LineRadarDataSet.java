@@ -1,10 +1,13 @@
 
 package com.github.mikephil.charting.data;
 
+import android.content.Context;
 import android.graphics.Color;
 
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,10 +18,10 @@ import java.util.List;
 public abstract class LineRadarDataSet<T extends Entry> extends LineScatterCandleRadarDataSet<T> {
 
     /** the color that is used for filling the line surface */
-    private int mFillColor = Color.rgb(140, 234, 255);
+    protected List<Integer> mFillColors = null;
 
-    /** transparency used for filling line surface */
-    private int mFillAlpha = 85;
+    /** the color that is used for filling the line surface when highlighted */
+    protected List<Integer> mHighlightFillColors = null;
 
     /** the width of the drawn data lines */
     private float mLineWidth = 2.5f;
@@ -30,48 +33,17 @@ public abstract class LineRadarDataSet<T extends Entry> extends LineScatterCandl
     
     public LineRadarDataSet(List<T> yVals, String label) {
         super(yVals, label);
+        this.init();
     }
 
     public LineRadarDataSet(List<T> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
         super(yVals, label, colors, highLightColors);
+        this.init();
     }
 
-    /**
-     * returns the color that is used for filling the line surface
-     * 
-     * @return
-     */
-    public int getFillColor() {
-        return mFillColor;
-    }
-
-    /**
-     * sets the color that is used for filling the line surface
-     * 
-     * @param color
-     */
-    public void setFillColor(int color) {
-        mFillColor = color;
-    }
-
-    /**
-     * returns the alpha value that is used for filling the line surface,
-     * default: 85
-     * 
-     * @return
-     */
-    public int getFillAlpha() {
-        return mFillAlpha;
-    }
-
-    /**
-     * sets the alpha value (transparency) that is used for filling the line
-     * surface (0-255), default: 85
-     * 
-     * @param alpha
-     */
-    public void setFillAlpha(int alpha) {
-        mFillAlpha = alpha;
+    private void init() {
+        resetFillColors();
+        resetHighlightFillColors();
     }
 
     /**
@@ -116,5 +88,222 @@ public abstract class LineRadarDataSet<T extends Entry> extends LineScatterCandl
      */
     public boolean isDrawFilledEnabled() {
         return mDrawFilled;
+    }
+
+    /** BELOW THIS FILL COLOR HANDLING */
+
+    /**
+     * Sets the fill colors that should be used fore this DataSet. Fill colors are reused
+     * as soon as the number of Entries the DataSet represents is higher than
+     * the size of the colors array. If you are using colors from the resources,
+     * make sure that the colors are already prepared (by calling
+     * getResources().getColor(...)) before adding them to the DataSet.
+     *
+     * @param colors
+     */
+    public void setFillColors(List<Integer> colors) {
+        this.mFillColors = colors;
+    }
+
+    /**
+     * Sets the fill colors that should be used fore this DataSet. Fill colors are reused
+     * as soon as the number of Entries the DataSet represents is higher than
+     * the size of the fill colors array. If you are using colors from the resources,
+     * make sure that the colors are already prepared (by calling
+     * getResources().getColor(...)) before adding them to the DataSet.
+     *
+     * @param colors
+     */
+    public void setFillColors(int[] colors) {
+        this.mFillColors = ColorTemplate.createColors(colors);
+    }
+
+    /**
+     * Sets the fill colors that should be used fore this DataSet. Fill colors are reused
+     * as soon as the number of Entries the DataSet represents is higher than
+     * the size of the fill colors array. You can use
+     * "new int[] { R.color.red, R.color.green, ... }" to provide colors for
+     * this method. Internally, the fill colors are resolved using
+     * getResources().getColor(...)
+     *
+     * @param colors
+     */
+    public void setFillColors(int[] colors, Context c) {
+
+        List<Integer> clrs = new ArrayList<Integer>();
+
+        for (int color : colors) {
+            clrs.add(c.getResources().getColor(color));
+        }
+
+        mFillColors = clrs;
+    }
+
+    /**
+     * Adds a new color to the fill colors array of the DataSet.
+     *
+     * @param color
+     */
+    public void addFillColor(int color) {
+        if (mFillColors == null)
+            mFillColors = new ArrayList<Integer>();
+        mFillColors.add(color);
+    }
+
+    /**
+     * Sets the one and ONLY highlight fill color that should be used for this DataSet.
+     * Internally, this recreates the fill colors array and adds the specified color.
+     *
+     * @param color
+     */
+    public void setFillColor(int color) {
+        mFillColors = new ArrayList<Integer>();
+        mFillColors.add(color);
+    }
+
+    /**
+     * returns all the fill colors that are set for this DataSet
+     *
+     * @return
+     */
+    public List<Integer> getFillColors() {
+        return mFillColors;
+    }
+
+    /**
+     * Returns the fill color at the given index of the DataSet's fill color array.
+     * Performs a IndexOutOfBounds check by modulus.
+     *
+     * @param index
+     * @return
+     */
+    public int getFillColor(int index) {
+        return mFillColors.get(index % mFillColors.size());
+    }
+
+    /**
+     * Returns the first fill color (index 0) of the fill colors-array this DataSet
+     * contains.
+     *
+     * @return
+     */
+    public int getFillColor() {
+        return mFillColors.get(0);
+    }
+
+    /**
+     * Resets all fill colors of this DataSet and recreates the fill colors array.
+     */
+    public void resetFillColors() {
+        mFillColors = new ArrayList<Integer>();
+        mFillColors.addAll(mColors);
+    }
+
+    /**
+     * Sets the highlight fill colors that should be used fore this DataSet. Highlight fill colors
+     * are reused as soon as the number of Entries the DataSet represents is higher than
+     * the size of the highlight fill colors array. If you are using colors from the resources,
+     * make sure that the colors are already prepared (by calling
+     * getResources().getColor(...)) before adding them to the DataSet.
+     *
+     * @param colors
+     */
+    public void setHighlightFillColors(List<Integer> colors) {
+        this.mHighlightFillColors = colors;
+    }
+
+    /**
+     * Sets the highlight fill colors that should be used fore this DataSet. Highlight fill colors
+     * are reused as soon as the number of Entries the DataSet represents is higher than
+     * the size of the highlight fill colors array. If you are using colors from the resources,
+     * make sure that the colors are already prepared (by calling
+     * getResources().getColor(...)) before adding them to the DataSet.
+     *
+     * @param colors
+     */
+    public void setHighlightFillColors(int[] colors) {
+        this.mHighlightFillColors = ColorTemplate.createColors(colors);
+    }
+
+    /**
+     * Sets the highlight fill colors that should be used fore this DataSet. Highlight fill colors
+     * are reused as soon as the number of Entries the DataSet represents is higher than
+     * the size of the highlight fill colors array. You can use
+     * "new int[] { R.color.red, R.color.green, ... }" to provide colors for
+     * this method. Internally, the fill colors are resolved using
+     * getResources().getColor(...)
+     *
+     * @param colors
+     */
+    public void setHighlightFillColors(int[] colors, Context c) {
+
+        List<Integer> clrs = new ArrayList<Integer>();
+
+        for (int color : colors) {
+            clrs.add(c.getResources().getColor(color));
+        }
+
+        mHighlightFillColors = clrs;
+    }
+
+    /**
+     * Adds a new color to the highlight fill colors array of the DataSet.
+     *
+     * @param color
+     */
+    public void addHighlightFillColor(int color) {
+        if (mHighlightFillColors == null)
+            mHighlightFillColors = new ArrayList<Integer>();
+        mHighlightFillColors.add(color);
+    }
+
+    /**
+     * Sets the one and ONLY highlight fill color that should be used for this DataSet.
+     * Internally, this recreates the highlight fill colors array and adds the specified color.
+     *
+     * @param color
+     */
+    public void setHighlightFillColor(int color) {
+        mHighlightFillColors = new ArrayList<Integer>();
+        mHighlightFillColors.add(color);
+    }
+
+    /**
+     * returns all the highlight fill colors that are set for this DataSet
+     *
+     * @return
+     */
+    public List<Integer> getHighlightFillColors() {
+        return mHighlightFillColors;
+    }
+
+    /**
+     * Returns the highlight fill color at the given index of the DataSet's highlight fill color
+     * array. Performs a IndexOutOfBounds check by modulus.
+     *
+     * @param index
+     * @return
+     */
+    public int getHighlightFillColor(int index) {
+        return mHighlightFillColors.get(index % mHighlightFillColors.size());
+    }
+
+    /**
+     * Returns the first highlight fill color (index 0) of the highlight fill colors-array
+     * this DataSet contains.
+     *
+     * @return
+     */
+    public int getHighlightFillColor() {
+        return mHighlightFillColors.get(0);
+    }
+
+    /**
+     * Resets all highlight fill colors of this DataSet and recreates the highlight fill colors
+     * array.
+     */
+    public void resetHighlightFillColors() {
+        mHighlightFillColors = new ArrayList<Integer>();
+        mHighlightFillColors.addAll(mHighLightColors);
     }
 }

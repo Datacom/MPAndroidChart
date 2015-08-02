@@ -16,6 +16,9 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
     /** List representing all colors that are used for the circles */
     private List<Integer> mCircleColors = null;
 
+    /** List representing all highlight colors that are used for the circles */
+    private List<Integer> mHighlightCircleColors = null;
+
     /** the color of the inner circles */
     private int mCircleColorHole = Color.WHITE;
 
@@ -42,12 +45,7 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
         // mCircleSize = Utils.convertDpToPixel(4f);
         // mLineWidth = Utils.convertDpToPixel(1f);
 
-        mCircleColors = new ArrayList<Integer>();
-
-        // default colors
-        // mColors.add(Color.rgb(192, 255, 140));
-        // mColors.add(Color.rgb(255, 247, 140));
-        mCircleColors.add(Color.rgb(140, 234, 255));
+        this.init();
     }
 
     public LineDataSet(List<Entry> yVals, String label, List<Integer> colors, List<Integer> highLightColors) {
@@ -56,12 +54,12 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
         // mCircleSize = Utils.convertDpToPixel(4f);
         // mLineWidth = Utils.convertDpToPixel(1f);
 
-        mCircleColors = new ArrayList<Integer>();
+        this.init();
+    }
 
-        // default colors
-        // mColors.add(Color.rgb(192, 255, 140));
-        // mColors.add(Color.rgb(255, 247, 140));
-        mCircleColors.add(Color.rgb(140, 234, 255));
+    private void init() {
+        resetCircleColors();
+        resetHighlightCircleColors();
     }
 
     @Override
@@ -252,7 +250,7 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
     }
 
     /**
-     * ets the colors that should be used for the circles of this DataSet.
+     * Sets the colors that should be used for the circles of this DataSet.
      * Colors are reused as soon as the number of Entries the DataSet represents
      * is higher than the size of the colors array. You can use
      * "new String[] { R.color.red, R.color.green, ... }" to provide colors for
@@ -279,7 +277,7 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
      * @param color
      */
     public void setCircleColor(int color) {
-        resetCircleColors();
+        mCircleColors = new ArrayList<Integer>();
         mCircleColors.add(color);
     }
 
@@ -288,7 +286,97 @@ public class LineDataSet extends LineRadarDataSet<Entry> {
      */
     public void resetCircleColors() {
         mCircleColors = new ArrayList<Integer>();
+        mCircleColors.addAll(mColors);
     }
+
+
+    /**
+     * returns all colors specified for the highlighted circles
+     *
+     * @return
+     */
+    public List<Integer> getHighlightCircleColors() {
+        return mHighlightCircleColors;
+    }
+
+    /**
+     * Returns the color at the given index of the DataSet's highlight circle-color array.
+     * Performs a IndexOutOfBounds check by modulus.
+     *
+     * @param index
+     * @return
+     */
+    public int getHighlightCircleColor(int index) {
+        return mHighlightCircleColors.get(index % mHighlightCircleColors.size());
+    }
+
+    /**
+     * Sets the colors that should be used for the highlighted circles of this DataSet.
+     * Colors are reused as soon as the number of Entries the DataSet represents
+     * is higher than the size of the highlight colors array. Make sure that the colors
+     * are already prepared (by calling getResources().getColor(...)) before
+     * adding them to the DataSet.
+     *
+     * @param colors
+     */
+    public void setHighlightCircleColors(List<Integer> colors) {
+        mHighlightCircleColors = colors;
+    }
+
+    /**
+     * Sets the colors that should be used for the highlighted circles of this DataSet.
+     * Colors are reused as soon as the number of Entries the DataSet represents
+     * is higher than the size of the highlight colors array. Make sure that the colors
+     * are already prepared (by calling getResources().getColor(...)) before
+     * adding them to the DataSet.
+     *
+     * @param colors
+     */
+    public void setHighlightCircleColors(int[] colors) {
+        mHighlightCircleColors = ColorTemplate.createColors(colors);
+    }
+
+    /**
+     * Sets the colors that should be used for the highlighted circles of this DataSet.
+     * Colors are reused as soon as the number of Entries the DataSet represents
+     * is higher than the size of the highlight colors array. You can use
+     * "new String[] { R.color.red, R.color.green, ... }" to provide colors for
+     * this method. Internally, the colors are resolved using
+     * getResources().getColor(...)
+     *
+     * @param colors
+     */
+    public void setHighlightCircleColors(int[] colors, Context c) {
+
+        List<Integer> clrs = new ArrayList<Integer>();
+
+        for (int color : colors) {
+            clrs.add(c.getResources().getColor(color));
+        }
+
+        mHighlightCircleColors = clrs;
+    }
+
+    /**
+     * Sets the one and ONLY highlight color that should be used for this DataSet.
+     * Internally, this recreates the colors array and adds the specified color.
+     *
+     * @param color
+     */
+    public void setHighlightCircleColor(int color) {
+        mHighlightCircleColors = new ArrayList<Integer>();
+        mCircleColors.add(color);
+    }
+
+    /**
+     * resets the circle-colors array and creates a new one
+     */
+    public void resetHighlightCircleColors() {
+        mHighlightCircleColors = new ArrayList<Integer>();
+        mHighlightCircleColors.addAll(mHighLightColors);
+    }
+
+
 
     /**
      * Sets the color of the inner circle of the line-circles.

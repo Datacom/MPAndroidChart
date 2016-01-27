@@ -20,6 +20,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.xxmassdeveloper.mpchartexample.notimportant.DemoBase;
 
@@ -98,12 +99,12 @@ public class ListViewBarChartActivity extends DemoBase {
             
             YAxis leftAxis = holder.chart.getAxisLeft();
             leftAxis.setTypeface(mTf);
-            leftAxis.setLabelCount(5);
+            leftAxis.setLabelCount(5, false);
             leftAxis.setSpaceTop(15f);
             
             YAxis rightAxis = holder.chart.getAxisRight();
             rightAxis.setTypeface(mTf);
-            rightAxis.setLabelCount(5);
+            rightAxis.setLabelCount(5, false);
             rightAxis.setSpaceTop(15f);
 
             // set data
@@ -140,7 +141,7 @@ public class ListViewBarChartActivity extends DemoBase {
         d.setColors(ColorTemplate.VORDIPLOM_COLORS);
         d.setBarShadowColor(Color.rgb(203, 203, 203));
         
-        ArrayList<BarDataSet> sets = new ArrayList<BarDataSet>();
+        ArrayList<IBarDataSet> sets = new ArrayList<IBarDataSet>();
         sets.add(d);
         
         BarData cd = new BarData(getMonths(), sets);

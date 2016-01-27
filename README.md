@@ -1,16 +1,18 @@
-[![Stories in Ready](https://badge.waffle.io/Datacom/MPAndroidChart.png?label=ready&title=Ready)](https://waffle.io/Datacom/MPAndroidChart)
- [![Android Arsenal](http://img.shields.io/badge/Android%20Arsenal-MPAndroidChart-blue.svg?style=flat)](http://android-arsenal.com/details/1/741)  [![Release](https://img.shields.io/github/release/PhilJay/MPAndroidChart.svg?label=maven central)](https://jitpack.io/#PhilJay/MPAndroidChart)      [![API](https://img.shields.io/badge/API-8%2B-green.svg?style=flat)](https://android-arsenal.com/api?level=8)
+[![Twitter](https://img.shields.io/badge/Twitter-@PhilippJahoda-blue.svg?style=flat)](http://twitter.com/philippjahoda)
+[![Twitter](https://img.shields.io/badge/Twitter-@mpandroidchart-blue.svg?style=flat)](http://twitter.com/mpandroidchart)
+[![Android Arsenal](http://img.shields.io/badge/Android%20Arsenal-MPAndroidChart-orange.svg?style=flat)](http://android-arsenal.com/details/1/741)
+[![Release](https://img.shields.io/github/release/PhilJay/MPAndroidChart.svg?label=maven central)](https://jitpack.io/#PhilJay/MPAndroidChart)      [![API](https://img.shields.io/badge/API-8%2B-green.svg?style=flat)](https://android-arsenal.com/api?level=8)
 
 Remember: *It's all about the looks.*
 
 
 ![alt tag](https://raw.github.com/PhilJay/MPChart/master/design/feature_graphic.png)
 
-**MPAndroidChart** is a powerful & easy to use chart library for Android, supporting line-, bar-, scatter-, candlestick-, bubble-, pie- and radarcharts (spider web), as well as scaling, dragging (panning), selecting and animations. Works on **Android 2.2 (API level 8)** and upwards.
+**MPAndroidChart** is a powerful & easy to use chart library for Android, supporting line-, bar-, scatter-, candlestick-, bubble-, pie- and radarcharts (spider web), as well as scaling, dragging (panning), selecting and animations. Works on **Android 2.2 (API level 8)** and upwards. 
 
-An **iOS** version of this library is now available, go check it out: [**ios-charts**](https://github.com/danielgindi/ios-charts)
+This library allows **cross-platform** development between Android and iOS as an iOS version of this library is also available: [**ios-charts**](https://github.com/danielgindi/ios-charts)
 
-Are you using this library? Add your project to the [**references**](https://github.com/PhilJay/MPAndroidChart/edit/master/Projects_using_MPAndroidChart.txt).
+Are you using this library? Let me know about it and I will add your project to the [**references**](https://github.com/PhilJay/MPAndroidChart/wiki/References).
 
 Donations
 -----
@@ -25,7 +27,6 @@ Donations
  - [**Donate 25 $**] (https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=H9JA4QX7UHXCY): That's some awesome stuff you did right there, dinner is on me!
  - [**Donate 50 $**] (https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZPQVJ2XRBSBYY): I really really want to support this project, great job!
  - [**Donate 100 $**] (https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KY7F59RYPCYCQ): You are the man! This project saved me hours (if not days) of struggle and hard work, simply awesome!
- - [**Donate 300 $**] (https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PGW8CXUHZS2T2): I can afford it and want to assure the further development and maintenance of this project. Furthermore, I also want to show my gratitude to it's creator.
  - Of course, you can also [**choose what you want to donate**](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=EGBENAC5XBCKS), all donations are awesome!
 
 **Spread the word**
@@ -37,6 +38,8 @@ Donations
 []()
 
 Follow me on **Twitter**: [**@PhilippJahoda**](https://twitter.com/PhilippJahoda)
+
+Contact me on **LinkedIn**: [**PhilippJahoda**](https://www.linkedin.com/in/philippjahoda/en)
 
 Look me up on **StackOverflow**: [**Philipp Jahoda**](http://stackoverflow.com/users/1590502/philipp-jahoda)
 
@@ -54,7 +57,7 @@ Questions & Issues
 If you are having questions or problems, you should:
 
  - Make sure you are using the latest version of the library. Check the [**release-section**](https://github.com/PhilJay/MPAndroidChart/releases).
- - Study the [**Documentation-Wiki**](https://github.com/PhilJay/MPAndroidChart/wiki)
+ - Study the [**Documentation-Wiki**](https://github.com/PhilJay/MPAndroidChart/wiki) or the [javadocs](https://jitpack.io/com/github/PhilJay/MPAndroidChart/v2.2.0/javadoc/)
  - Search or open questions on [**stackoverflow**](https://stackoverflow.com/search?q=mpandroidchart) with the `mpandroidchart` tag
  - Search [**known issues**](https://github.com/PhilJay/MPAndroidChart/issues) for your problem (open and closed)
  - Create new issues (please **search known issues before**, do not create duplicate issues)
@@ -67,18 +70,18 @@ Features
  - Scaling on both axes (with touch-gesture, axes separately or pinch-zoom)
  - Dragging / Panning (with touch-gesture)
  - Combined-Charts (line-, bar-, scatter-, candle-data)
- - Dual (separate) Y-Axis
- - Finger drawing (draw values into the chart with touch-gesture)
+ - Dual (separate) Axes
+ - Customizeable Axes (both x- and y-axis)
  - Highlighting values (with customizeable popup-views)
- - Multiple / Separate Axes
  - Save chart to SD-Card (as image, or as .txt file)
  - Predefined color templates
  - Legends (generated automatically, customizeable)
- - Customizeable Axes (both x- and y-axis)
  - Animations (build up animations, on both x- and y-axis)
  - Limit lines (providing additional information, maximums, ...)
  - Fully customizeable (paints, typefaces, legends, colors, background, gestures, dashed lines, ...)
  - Smooth zooming and scrolling for up to 30.000 data points in Line- and BarChart
+ - Gradle support
+ - Plotting data directly from [**Realm.io**](https://realm.io) mobile database
  
 **Chart types:**
 
@@ -90,8 +93,8 @@ Features
  - **LineChart (cubic lines)**
 ![alt tag](https://raw.github.com/PhilJay/MPChart/master/screenshots/cubiclinechart.png)
 
- - **LineChart (single DataSet)**
-![alt tag](https://raw.github.com/PhilJay/MPChart/master/screenshots/linechart.png)
+ - **LineChart (gradient fill)**
+![alt tag](https://raw.github.com/PhilJay/MPAndroidChart/master/screenshots/line_chart_gradient.png)
 
  - **Combined-Chart (bar- and linechart in this case)**
 ![alt tag](https://raw.github.com/PhilJay/MPChart/master/screenshots/combined_chart.png)
@@ -134,9 +137,9 @@ Features
 Usage
 =======
 
-In order to use the library, there are 4 options:
+In order to use the library, there are 4 different options:
 
-**1. Gradle dependency**
+**1. Gradle dependency** (recommended)
 
  - 	Add the following to your `build.gradle`:
  ```gradle
@@ -145,7 +148,7 @@ repositories {
 }
 
 dependencies {
-	    compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
+	    compile 'com.github.PhilJay:MPAndroidChart:v2.2.0'
 }
 ```
 
@@ -160,35 +163,27 @@ dependencies {
 <dependency>
 	    <groupId>com.github.PhilJay</groupId>
 	    <artifactId>MPAndroidChart</artifactId>
-	    <version>v2.1.0</version>
+	    <version>v2.2.0</version>
 </dependency>
 ```
 
 **3. jar file only**
  - Download the [**latest .jar file**](https://github.com/PhilJay/MPAndroidChart/releases) from the releases section
- - Copy the **mpandroidchartlibrary-.jar** file into the `libs` folder of your Android application project
+ - Copy the **mpandroidchartlibrary-version.jar** file into the `libs` folder of your Android application project
  - Start using the library
 	
 **4. clone whole repository**
- - Open your **commandline-input** and navigate to your desired destination folder (where you want to put the library)
- - Use the command `git clone https://github.com/PhilJay/MPAndroidChart.git` to download the full MPAndroidChart repository to your computer (this includes the folder of the library project as well as the example project)
- - Import the library folder (`MPChartLib`) into your Eclipse workspace
- - Add it as a reference to your project: [referencing library projects in Eclipse](http://developer.android.com/tools/projects/projects-eclipse.html#ReferencingLibraryProject)
+ - Open your **commandline-input** and navigate to the desired destination folder on your machine (where you want to place the library)
+ - Use the command `git clone https://github.com/PhilJay/MPAndroidChart.git` to download the full MPAndroidChart repository to your computer (this includes the folder of the library as well as the folder of the example project)
+ - Import the library folder (`MPChartLib`) into Android Studio (recommended) or your Eclipse workspace
+ - Add it as a reference to your project: 
+   - [referencing library projects in Eclipse](http://developer.android.com/tools/projects/projects-eclipse.html#ReferencingLibraryProject)
+   - [managing projects from Android Studio](https://developer.android.com/sdk/installing/create-project.html)
 
-Proguard
-=======
-
-In case you are using Proguard, you will need to **whitelist MPAndroidChart**, which requires to add the following line to your Proguard configuration file.
-
-```
--keep class com.github.mikephil.charting.** { *; }
-```
-
-If you don't do this, animations might not work.
 
 Documentation
 =======
-For a **detailed documentation**, please have a look at the [**Wiki**](https://github.com/PhilJay/MPAndroidChart/wiki).
+For a **detailed documentation**, please have a look at the [**Wiki**](https://github.com/PhilJay/MPAndroidChart/wiki) or the [javadocs](https://jitpack.io/com/github/PhilJay/MPAndroidChart/v2.2.0/javadoc/).
 
 Furthermore, you can also rely on the [**MPChartExample**](https://github.com/PhilJay/MPAndroidChart/tree/master/MPChartExample) folder and check out the example code in that project. The corresponding application to the example project is also  [**available in the Google PlayStore**](https://play.google.com/store/apps/details?id=com.xxmassdeveloper.mpchartexample). 
 
@@ -197,7 +192,7 @@ No problem, let's talk: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](ht
 
 License
 =======
-Copyright 2015 Philipp Jahoda
+Copyright 2016 Philipp Jahoda
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -16,8 +16,8 @@ import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.components.Legend.LegendPosition;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.ChartData;
-import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.listener.PieRadarChartTouchListener;
 import com.github.mikephil.charting.utils.SelectionDetail;
 import com.github.mikephil.charting.utils.Utils;
@@ -30,7 +30,7 @@ import java.util.List;
  * 
  * @author Philipp Jahoda
  */
-public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? extends Entry>>>
+public abstract class PieRadarChartBase<T extends ChartData<? extends IDataSet<? extends Entry>>>
         extends Chart<T> {
 
     /** holds the normalized version of the current rotation angle of the chart */
@@ -41,6 +41,9 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
 
     /** flag that indicates if rotation is enabled or not */
     protected boolean mRotateEnabled = true;
+
+    /** Sets the minimum offset (padding) around the chart, defaults to 0.f */
+    protected float mMinOffset = 0.f;
 
     public PieRadarChartBase(Context context) {
         super(context);
@@ -84,7 +87,7 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
 
     @Override
     public void notifyDataSetChanged() {
-        if (mDataNotSet)
+        if (mData == null)
             return;
 
         calcMinMax();
@@ -184,8 +187,23 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
                     || mLegend.getPosition() == LegendPosition.BELOW_CHART_RIGHT
                     || mLegend.getPosition() == LegendPosition.BELOW_CHART_CENTER) {
 
-                float yOffset = getRequiredBottomOffset(); // It's possible that we do not need this offset anymore as it is available through the extraOffsets
+                // It's possible that we do not need this offset anymore as it
+                //   is available through the extraOffsets, but changing it can mean
+                //   changing default visibility for existing apps.
+                float yOffset = getRequiredLegendOffset();
+
                 legendBottom = Math.min(mLegend.mNeededHeight + yOffset, mViewPortHandler.getChartHeight() * mLegend.getMaxSizePercent());
+
+            } else if (mLegend.getPosition() == LegendPosition.ABOVE_CHART_LEFT
+                    || mLegend.getPosition() == LegendPosition.ABOVE_CHART_RIGHT
+                    || mLegend.getPosition() == LegendPosition.ABOVE_CHART_CENTER) {
+
+                // It's possible that we do not need this offset anymore as it
+                //   is available through the extraOffsets, but changing it can mean
+                //   changing default visibility for existing apps.
+                float yOffset = getRequiredLegendOffset();
+
+                legendTop = Math.min(mLegend.mNeededHeight + yOffset, mViewPortHandler.getChartHeight() * mLegend.getMaxSizePercent());
 
             }
 
@@ -194,13 +212,13 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
             legendTop += getRequiredBaseOffset();
         }
 
-        float min = Utils.convertDpToPixel(10f);
+        float minOffset = Utils.convertDpToPixel(mMinOffset);
 
         if (this instanceof RadarChart) {
             XAxis x = ((RadarChart) this).getXAxis();
 
-            if (x.isEnabled()) {
-                min = Math.max(Utils.convertDpToPixel(10f), x.mLabelWidth);
+            if (x.isEnabled() && x.isDrawLabelsEnabled()) {
+                minOffset = Math.max(minOffset, x.mLabelRotatedWidth);
             }
         }
 
@@ -209,10 +227,10 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
         legendBottom += getExtraBottomOffset();
         legendLeft += getExtraLeftOffset();
 
-        float offsetLeft = Math.max(min, legendLeft);
-        float offsetTop = Math.max(min, legendTop);
-        float offsetRight = Math.max(min, legendRight);
-        float offsetBottom = Math.max(min, Math.max(getRequiredBaseOffset(), legendBottom));
+        float offsetLeft = Math.max(minOffset, legendLeft);
+        float offsetTop = Math.max(minOffset, legendTop);
+        float offsetRight = Math.max(minOffset, legendRight);
+        float offsetBottom = Math.max(minOffset, Math.max(getRequiredBaseOffset(), legendBottom));
 
         mViewPortHandler.restrainViewPort(offsetLeft, offsetTop, offsetRight, offsetBottom);
 
@@ -365,6 +383,16 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
         return mRotateEnabled;
     }
 
+    /** Gets the minimum offset (padding) around the chart, defaults to 0.f */
+    public float getMinOffset() {
+        return mMinOffset;
+    }
+
+    /** Sets the minimum offset (padding) around the chart, defaults to 0.f */
+    public void setMinOffset(float minOffset) {
+        mMinOffset = minOffset;
+    }
+
     /**
      * returns the diameter of the pie- or radar-chart
      * 
@@ -383,11 +411,11 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
     public abstract float getRadius();
 
     /**
-     * Returns the required bottom offset for the chart.
+     * Returns the required offset for the chart legend.
      * 
      * @return
      */
-    protected abstract float getRequiredBottomOffset();
+    protected abstract float getRequiredLegendOffset();
 
     /**
      * Returns the base offset needed for the chart without calculating the
@@ -423,7 +451,7 @@ public abstract class PieRadarChartBase<T extends ChartData<? extends DataSet<? 
 
         for (int i = 0; i < mData.getDataSetCount(); i++) {
 
-            DataSet<?> dataSet = mData.getDataSetByIndex(i);
+            IDataSet<?> dataSet = mData.getDataSetByIndex(i);
 
             // extract all y-values from all DataSets at the given x-index
             final float yVal = dataSet.getYValForXIndex(xIndex);

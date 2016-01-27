@@ -24,6 +24,7 @@ public class Legend extends ComponentBase {
         RIGHT_OF_CHART, RIGHT_OF_CHART_CENTER, RIGHT_OF_CHART_INSIDE,
         LEFT_OF_CHART, LEFT_OF_CHART_CENTER, LEFT_OF_CHART_INSIDE,
         BELOW_CHART_LEFT, BELOW_CHART_RIGHT, BELOW_CHART_CENTER,
+        ABOVE_CHART_LEFT, ABOVE_CHART_RIGHT, ABOVE_CHART_CENTER,
         PIECHART_CENTER
     }
 
@@ -107,7 +108,7 @@ public class Legend extends ComponentBase {
         mTextSize = Utils.convertDpToPixel(10f);
         mStackSpace = Utils.convertDpToPixel(3f);
         this.mXOffset = Utils.convertDpToPixel(5f);
-        this.mYOffset = Utils.convertDpToPixel(7f);
+        this.mYOffset = Utils.convertDpToPixel(4f); // 2
     }
 
     /**
@@ -651,7 +652,10 @@ public class Legend extends ComponentBase {
 
         } else if (mPosition == LegendPosition.BELOW_CHART_LEFT
                 || mPosition == LegendPosition.BELOW_CHART_RIGHT
-                || mPosition == LegendPosition.BELOW_CHART_CENTER) {
+                || mPosition == LegendPosition.BELOW_CHART_CENTER
+                || mPosition == LegendPosition.ABOVE_CHART_LEFT
+                || mPosition == LegendPosition.ABOVE_CHART_RIGHT
+                || mPosition == LegendPosition.ABOVE_CHART_CENTER) {
 
             int labelCount = mLabels.length;
             float labelLineHeight = Utils.getLineHeight(labelpaint);

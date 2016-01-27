@@ -7,12 +7,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.Legend.LegendPosition;
@@ -22,19 +18,20 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.filter.Approximator;
 import com.github.mikephil.charting.data.filter.Approximator.ApproximatorType;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.utils.Highlight;
-import com.github.mikephil.charting.utils.ValueFormatter;
-import com.xxmassdeveloper.mpchartexample.custom.MyValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.xxmassdeveloper.mpchartexample.notimportant.DemoBase;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 public class StackedBarActivityNegative extends DemoBase implements
         OnChartValueSelectedListener {
@@ -55,9 +52,6 @@ public class StackedBarActivityNegative extends DemoBase implements
         mChart.setDrawGridBackground(false);
         mChart.setDescription("");
 
-        // if false values are only drawn for the stack sum, else each value is
-        // drawn
-        mChart.setDrawValuesForWholeStack(true);
         // scaling can now only be done on x- and y-axis separately
         mChart.setPinchZoom(false);
 
@@ -68,7 +62,7 @@ public class StackedBarActivityNegative extends DemoBase implements
         mChart.getAxisRight().setStartAtZero(false);
         mChart.getAxisRight().setAxisMaxValue(25f);
         mChart.getAxisRight().setAxisMinValue(-25f);
-        mChart.getAxisRight().setLabelCount(7);
+        mChart.getAxisRight().setLabelCount(7, false);
         mChart.getAxisRight().setValueFormatter(new CustomFormatter());
         mChart.getAxisRight().setTextSize(9f);
 
@@ -84,6 +78,7 @@ public class StackedBarActivityNegative extends DemoBase implements
         l.setFormToTextSpace(4f);
         l.setXEntrySpace(6f);
 
+        // IMPORTANT: When using negative values in stacked bars, always make sure the negative values are in the array first
         ArrayList<BarEntry> yValues = new ArrayList<BarEntry>();
         yValues.add(new BarEntry(new float[]{ -10, 10 }, 0));
         yValues.add(new BarEntry(new float[]{ -12, 13 }, 1));
@@ -101,7 +96,7 @@ public class StackedBarActivityNegative extends DemoBase implements
         set.setValueFormatter(new CustomFormatter());
         set.setValueTextSize(7f);
         set.setAxisDependency(YAxis.AxisDependency.RIGHT);
-        set.setBarSpacePercent(50f);
+        set.setBarSpacePercent(40f);
         set.setColors(new int[] {Color.rgb(67,67,72), Color.rgb(124,181,236)});
         set.setStackLabels(new String[]{
                 "Men", "Women"
@@ -125,18 +120,23 @@ public class StackedBarActivityNegative extends DemoBase implements
 
         switch (item.getItemId()) {
             case R.id.actionToggleValues: {
-                for (DataSet<?> set : mChart.getData().getDataSets())
+                List<IBarDataSet> sets = mChart.getData()
+                        .getDataSets();
+
+                for (IBarDataSet iSet : sets) {
+
+                    BarDataSet set = (BarDataSet) iSet;
                     set.setDrawValues(!set.isDrawValuesEnabled());
+                }
 
                 mChart.invalidate();
                 break;
             }
             case R.id.actionToggleHighlight: {
-                if (mChart.isHighlightEnabled())
-                    mChart.setHighlightEnabled(false);
-                else
-                    mChart.setHighlightEnabled(true);
-                mChart.invalidate();
+                if(mChart.getData() != null) {
+                    mChart.getData().setHighlightEnabled(!mChart.getData().isHighlightEnabled());
+                    mChart.invalidate();
+                }
                 break;
             }
             case R.id.actionTogglePinch: {
@@ -210,16 +210,16 @@ public class StackedBarActivityNegative extends DemoBase implements
 
         BarEntry entry = (BarEntry) e;
         Log.i("VAL SELECTED",
-                "Value: " + entry.getVals()[h.getStackIndex()]);
+                "Value: " + Math.abs(entry.getVals()[h.getStackIndex()]));
     }
 
     @Override
     public void onNothingSelected() {
         // TODO Auto-generated method stub
-
+        Log.i("NOTING SELECTED", "");
     }
 
-    private class CustomFormatter implements ValueFormatter {
+    private class CustomFormatter implements ValueFormatter, YAxisValueFormatter {
 
         private DecimalFormat mFormat;
 
@@ -227,8 +227,15 @@ public class StackedBarActivityNegative extends DemoBase implements
             mFormat = new DecimalFormat("###");
         }
 
+        // data
         @Override
-        public String getFormattedValue(float value) {
+        public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+            return mFormat.format(Math.abs(value)) + "m";
+        }
+
+        // YAxis
+        @Override
+        public String getFormattedValue(float value, YAxis yAxis) {
             return mFormat.format(Math.abs(value)) + "m";
         }
     }

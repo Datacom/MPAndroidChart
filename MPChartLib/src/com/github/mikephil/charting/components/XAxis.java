@@ -1,6 +1,10 @@
 
 package com.github.mikephil.charting.components;
 
+import com.github.mikephil.charting.formatter.DefaultXAxisValueFormatter;
+import com.github.mikephil.charting.formatter.XAxisValueFormatter;
+import com.github.mikephil.charting.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,16 +21,33 @@ public class XAxis extends AxisBase {
     protected List<String> mValues = new ArrayList<String>();
 
     /**
-     * width of the x-axis labels in pixels - this is calculated by the
-     * calcTextWidth() method of the utils
+     * width of the x-axis labels in pixels - this is automatically
+     * calculated by the computeAxis() methods in the renderers
      */
     public int mLabelWidth = 1;
 
     /**
-     * height of the x-axis labels in pixels - this is calculated by the
-     * calcTextHeight() method of the utils
+     * height of the x-axis labels in pixels - this is automatically
+     * calculated by the computeAxis() methods in the renderers
      */
     public int mLabelHeight = 1;
+
+    /**
+     * width of the (rotated) x-axis labels in pixels - this is automatically
+     * calculated by the computeAxis() methods in the renderers
+     */
+    public int mLabelRotatedWidth = 1;
+
+    /**
+     * height of the (rotated) x-axis labels in pixels - this is automatically
+     * calculated by the computeAxis() methods in the renderers
+     */
+    public int mLabelRotatedHeight = 1;
+
+    /**
+     * This is the angle for drawing the X axis labels (in degrees)
+     */
+    protected float mLabelRotationAngle = 0.f;
 
     /**
      * the space that should be left out (in characters) between the x-axis
@@ -60,6 +81,11 @@ public class XAxis extends AxisBase {
      */
     private boolean mAvoidFirstLastClipping = false;
 
+    /**
+     * Custom formatter for adjusting x-value strings
+     */
+    protected XAxisValueFormatter mXAxisValueFormatter = new DefaultXAxisValueFormatter();
+
     /** the position of the x-labels relative to the chart */
     private XAxisPosition mPosition = XAxisPosition.TOP;
 
@@ -70,6 +96,8 @@ public class XAxis extends AxisBase {
 
     public XAxis() {
         super();
+
+        mYOffset = Utils.convertDpToPixel(4.f); // -3
     }
 
     /**
@@ -89,11 +117,27 @@ public class XAxis extends AxisBase {
     }
 
     /**
+     * returns the angle for drawing the X axis labels (in degrees)
+     */
+    public float getLabelRotationAngle() {
+        return mLabelRotationAngle;
+    }
+
+    /**
+     * sets the angle for drawing the X axis labels (in degrees)
+     *
+     * @param angle the angle in degrees
+     */
+    public void setLabelRotationAngle(float angle) {
+        mLabelRotationAngle = angle;
+    }
+
+    /**
      * Sets the space (in characters) that should be left out between the x-axis
      * labels, default 4. This only applies if the number of labels that will be
      * skipped in between drawn axis labels is not custom set.
      * 
-     * @param space
+     * @param spaceCharacters
      */
     public void setSpaceBetweenLabels(int spaceCharacters) {
         mSpaceBetweenLabels = spaceCharacters;
@@ -139,8 +183,6 @@ public class XAxis extends AxisBase {
     /**
      * Returns the space (in characters) that should be left out between the
      * x-axis labels
-     * 
-     * @param space
      */
     public int getSpaceBetweenLabels() {
         return mSpaceBetweenLabels;
@@ -181,6 +223,29 @@ public class XAxis extends AxisBase {
      */
     public List<String> getValues() {
         return mValues;
+    }
+
+
+    /**
+     * Sets a custom XAxisValueFormatter for the data object that allows custom-formatting
+     * of all x-values before rendering them. Provide null to reset back to the
+     * default formatting.
+     *
+     * @param formatter
+     */
+    public void setValueFormatter(XAxisValueFormatter formatter) {
+        if(formatter == null)
+            mXAxisValueFormatter = new DefaultXAxisValueFormatter();
+        else
+            mXAxisValueFormatter = formatter;
+    }
+
+    /**
+     * Returns the custom XAxisValueFormatter that is set for this data object.
+     * @return
+     */
+    public XAxisValueFormatter getValueFormatter() {
+        return mXAxisValueFormatter;
     }
 
     @Override

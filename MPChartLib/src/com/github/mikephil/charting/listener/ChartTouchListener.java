@@ -5,12 +5,21 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.utils.Highlight;
+import com.github.mikephil.charting.highlight.Highlight;
 
 /**
  * Created by philipp on 12/06/15.
  */
 public abstract class ChartTouchListener<T extends Chart<?>> extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+
+    public enum ChartGesture {
+        NONE, DRAG, X_ZOOM, Y_ZOOM, PINCH_ZOOM, ROTATE, SINGLE_TAP, DOUBLE_TAP, LONG_PRESS, FLING
+    }
+
+    /**
+     * the last touch gesture that has been performed
+     **/
+    protected ChartGesture mLastGesture = ChartGesture.NONE;
 
     // states
     protected static final int NONE = 0;
@@ -21,16 +30,24 @@ public abstract class ChartTouchListener<T extends Chart<?>> extends GestureDete
     protected static final int POST_ZOOM = 5;
     protected static final int ROTATE = 6;
 
-    /** integer field that holds the current touch-state */
+    /**
+     * integer field that holds the current touch-state
+     */
     protected int mTouchMode = NONE;
 
-    /** the last highlighted object (via touch) */
+    /**
+     * the last highlighted object (via touch)
+     */
     protected Highlight mLastHighlighted;
 
-    /** the gesturedetector used for detecting taps and longpresses, ... */
+    /**
+     * the gesturedetector used for detecting taps and longpresses, ...
+     */
     protected GestureDetector mGestureDetector;
 
-    /** the chart the listener represents */
+    /**
+     * the chart the listener represents
+     */
     protected T mChart;
 
     public ChartTouchListener(T chart) {
@@ -40,7 +57,34 @@ public abstract class ChartTouchListener<T extends Chart<?>> extends GestureDete
     }
 
     /**
+     * Calls the OnChartGestureListener to do the start callback
+     *
+     * @param me
+     */
+    public void startAction(MotionEvent me) {
+
+        OnChartGestureListener l = mChart.getOnChartGestureListener();
+
+        if (l != null)
+            l.onChartGestureStart(me, mLastGesture);
+    }
+
+    /**
+     * Calls the OnChartGestureListener to do the end callback
+     *
+     * @param me
+     */
+    public void endAction(MotionEvent me) {
+
+        OnChartGestureListener l = mChart.getOnChartGestureListener();
+
+        if (l != null)
+            l.onChartGestureEnd(me, mLastGesture);
+    }
+
+    /**
      * Sets the last value that was highlighted via touch.
+     *
      * @param high
      */
     public void setLastHighlighted(Highlight high) {
@@ -54,6 +98,32 @@ public abstract class ChartTouchListener<T extends Chart<?>> extends GestureDete
      */
     public int getTouchMode() {
         return mTouchMode;
+    }
+
+    /**
+     * Returns the last gesture that has been performed on the chart.
+     *
+     * @return
+     */
+    public ChartGesture getLastGesture() {
+        return mLastGesture;
+    }
+
+
+    /**
+     * Perform a highlight operation.
+     *
+     * @param e
+     */
+    protected void performHighlight(Highlight h, MotionEvent e) {
+
+        if (h == null || h.equalTo(mLastHighlighted)) {
+            mChart.highlightTouch(null);
+            mLastHighlighted = null;
+        } else {
+            mLastHighlighted = h;
+            mChart.highlightTouch(h);
+        }
     }
 
     /**

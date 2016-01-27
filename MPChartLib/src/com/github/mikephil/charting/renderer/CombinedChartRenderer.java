@@ -1,4 +1,3 @@
-
 package com.github.mikephil.charting.renderer;
 
 import android.graphics.Canvas;
@@ -6,38 +5,38 @@ import android.graphics.Canvas;
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.charts.CombinedChart.DrawOrder;
-import com.github.mikephil.charting.interfaces.BarLineScatterCandleDataProvider;
-import com.github.mikephil.charting.utils.Highlight;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.dataprovider.BarLineScatterCandleBubbleDataProvider;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Renderer class that is responsible for rendering multiple different data-types.
+ */
 public class CombinedChartRenderer extends DataRenderer {
 
     /**
-     * all rederers for the different kinds of data this combined-renderer can
-     * draw
+     * all rederers for the different kinds of data this combined-renderer can draw
      */
     protected List<DataRenderer> mRenderers;
 
-    public CombinedChartRenderer(CombinedChart chart, ChartAnimator animator,
-            ViewPortHandler viewPortHandler) {
+    public CombinedChartRenderer(CombinedChart chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(animator, viewPortHandler);
 
         createRenderers(chart, animator, viewPortHandler);
     }
 
     /**
-     * Creates the renderers needed for this combined-renderer in the required
-     * order. Also takes the DrawOrder into consideration.
-     * 
+     * Creates the renderers needed for this combined-renderer in the required order. Also takes the DrawOrder into
+     * consideration.
+     *
      * @param chart
      * @param animator
      * @param viewPortHandler
      */
-    protected void createRenderers(CombinedChart chart, ChartAnimator animator,
-            ViewPortHandler viewPortHandler) {
+    protected void createRenderers(CombinedChart chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
 
         mRenderers = new ArrayList<DataRenderer>();
 
@@ -50,7 +49,6 @@ public class CombinedChartRenderer extends DataRenderer {
                     if (chart.getBarData() != null)
                         mRenderers.add(new BarChartRenderer(chart, animator, viewPortHandler));
                     break;
-
                 case BUBBLE:
                     if (chart.getBubbleData() != null)
                         mRenderers.add(new BubbleChartRenderer(chart, animator, viewPortHandler));
@@ -61,8 +59,7 @@ public class CombinedChartRenderer extends DataRenderer {
                     break;
                 case CANDLE:
                     if (chart.getCandleData() != null)
-                        mRenderers.add(new CandleStickChartRenderer(chart, animator,
-                                viewPortHandler));
+                        mRenderers.add(new CandleStickChartRenderer(chart, animator, viewPortHandler));
                     break;
                 case SCATTER:
                     if (chart.getScatterData() != null)
@@ -107,14 +104,14 @@ public class CombinedChartRenderer extends DataRenderer {
     }
 
     @Override
-    public void calcXBounds(BarLineScatterCandleDataProvider chart, int xAxisModulus) {
+    public void calcXBounds(BarLineScatterCandleBubbleDataProvider chart, int xAxisModulus) {
         for (DataRenderer renderer : mRenderers)
             renderer.calcXBounds(chart, xAxisModulus);
     }
 
     /**
      * Returns the sub-renderer object at the specified index.
-     * 
+     *
      * @param index
      * @return
      */
@@ -123,5 +120,18 @@ public class CombinedChartRenderer extends DataRenderer {
             return null;
         else
             return mRenderers.get(index);
+    }
+
+    /**
+     * Returns all sub-renderers.
+     *
+     * @return
+     */
+    public List<DataRenderer> getSubRenderers() {
+        return mRenderers;
+    }
+
+    public void setSubRenderers(List<DataRenderer> renderers) {
+        this.mRenderers = renderers;
     }
 }

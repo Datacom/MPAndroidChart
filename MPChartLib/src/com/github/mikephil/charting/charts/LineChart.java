@@ -5,9 +5,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.interfaces.LineDataProvider;
+import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.renderer.LineChartRenderer;
-import com.github.mikephil.charting.utils.FillFormatter;
 
 /**
  * Chart that draws lines, surfaces, circles, ...
@@ -15,8 +14,6 @@ import com.github.mikephil.charting.utils.FillFormatter;
  * @author Philipp Jahoda
  */
 public class LineChart extends BarLineChartBase<LineData> implements LineDataProvider {
-
-    private FillFormatter mFillFormatter;
 
     public LineChart(Context context) {
         super(context);
@@ -35,40 +32,27 @@ public class LineChart extends BarLineChartBase<LineData> implements LineDataPro
         super.init();
 
         mRenderer = new LineChartRenderer(this, mAnimator, mViewPortHandler);
-        
-        mFillFormatter = new DefaultFillFormatter();
     }
 
     @Override
     protected void calcMinMax() {
         super.calcMinMax();
 
-        // // if there is only one value in the chart
-        // if (mOriginalData.getYValCount() == 1
-        // || mOriginalData.getYValCount() <= mOriginalData.getDataSetCount()) {
-        // mDeltaX = 1;
-        // }
-
         if (mDeltaX == 0 && mData.getYValCount() > 0)
             mDeltaX = 1;
-    }
-
-    @Override
-    public void setFillFormatter(FillFormatter formatter) {
-
-        if (formatter == null)
-            formatter = new DefaultFillFormatter();
-        else
-            mFillFormatter = formatter;
-    }
-
-    @Override
-    public FillFormatter getFillFormatter() {
-        return mFillFormatter;
     }
     
     @Override
     public LineData getLineData() {
         return mData;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        // releases the bitmap in the renderer to avoid oom error
+        if(mRenderer != null && mRenderer instanceof LineChartRenderer) {
+            ((LineChartRenderer) mRenderer).releaseBitmap();
+        }
+        super.onDetachedFromWindow();
     }
 }

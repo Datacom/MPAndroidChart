@@ -1,4 +1,3 @@
-
 package com.xxmassdeveloper.mpchartexample;
 
 import android.os.Bundle;
@@ -20,256 +19,252 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.filter.Approximator;
 import com.github.mikephil.charting.data.filter.Approximator.ApproximatorType;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.utils.Highlight;
 import com.xxmassdeveloper.mpchartexample.custom.MyValueFormatter;
+import com.xxmassdeveloper.mpchartexample.custom.MyYAxisValueFormatter;
 import com.xxmassdeveloper.mpchartexample.notimportant.DemoBase;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class StackedBarActivity extends DemoBase implements OnSeekBarChangeListener,
-        OnChartValueSelectedListener {
+public class StackedBarActivity extends DemoBase implements OnSeekBarChangeListener, OnChartValueSelectedListener {
 
-    private BarChart mChart;
-    private SeekBar mSeekBarX, mSeekBarY;
-    private TextView tvX, tvY;
+	private BarChart mChart;
+	private SeekBar mSeekBarX, mSeekBarY;
+	private TextView tvX, tvY;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_barchart);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		setContentView(R.layout.activity_barchart);
 
-        tvX = (TextView) findViewById(R.id.tvXMax);
-        tvY = (TextView) findViewById(R.id.tvYMax);
+		tvX = (TextView) findViewById(R.id.tvXMax);
+		tvY = (TextView) findViewById(R.id.tvYMax);
 
-        mSeekBarX = (SeekBar) findViewById(R.id.seekBar1);
-        mSeekBarX.setOnSeekBarChangeListener(this);
+		mSeekBarX = (SeekBar) findViewById(R.id.seekBar1);
+		mSeekBarX.setOnSeekBarChangeListener(this);
 
-        mSeekBarY = (SeekBar) findViewById(R.id.seekBar2);
-        mSeekBarY.setOnSeekBarChangeListener(this);
+		mSeekBarY = (SeekBar) findViewById(R.id.seekBar2);
+		mSeekBarY.setOnSeekBarChangeListener(this);
 
-        mChart = (BarChart) findViewById(R.id.chart1);
-        mChart.setOnChartValueSelectedListener(this);
+		mChart = (BarChart) findViewById(R.id.chart1);
+		mChart.setOnChartValueSelectedListener(this);
 
-        mChart.setDescription("");
+		mChart.setDescription("");
 
-        // if more than 60 entries are displayed in the chart, no values will be
-        // drawn
-        mChart.setMaxVisibleValueCount(60);
+		// if more than 60 entries are displayed in the chart, no values will be
+		// drawn
+		mChart.setMaxVisibleValueCount(60);
 
-        // if false values are only drawn for the stack sum, else each value is
-        // drawn
-        mChart.setDrawValuesForWholeStack(true);
-        // scaling can now only be done on x- and y-axis separately
-        mChart.setPinchZoom(false);
+		// scaling can now only be done on x- and y-axis separately
+		mChart.setPinchZoom(false);
 
-        mChart.setDrawBarShadow(false);
-        
-        mChart.setDrawValueAboveBar(false);
+		mChart.setDrawGridBackground(false);
+		mChart.setDrawBarShadow(false);
 
-        // change the position of the y-labels
-        YAxis yLabels = mChart.getAxisLeft();
-        // yLabels.setPosition(YLabelPosition.BOTH_SIDED);
-//        yLabels.setLabelCount(5);
-        yLabels.setValueFormatter(new MyValueFormatter());
-        
-        mChart.getAxisRight().setValueFormatter(new MyValueFormatter());
-        mChart.getAxisRight().setDrawGridLines(false);
+		mChart.setDrawValueAboveBar(false);
 
-        XAxis xLabels = mChart.getXAxis();
-        xLabels.setPosition(XAxisPosition.TOP);
+		// change the position of the y-labels
+		YAxis yLabels = mChart.getAxisLeft();
+		yLabels.setValueFormatter(new MyYAxisValueFormatter());
+		mChart.getAxisRight().setEnabled(false);
 
-        // mChart.setDrawXLabels(false);
-        // mChart.setDrawYLabels(false);
+		XAxis xLabels = mChart.getXAxis();
+		xLabels.setPosition(XAxisPosition.TOP);
 
-        // setting data
-        mSeekBarX.setProgress(12);
-        mSeekBarY.setProgress(100);
+		// mChart.setDrawXLabels(false);
+		// mChart.setDrawYLabels(false);
 
-        Legend l = mChart.getLegend();
-        l.setPosition(LegendPosition.BELOW_CHART_RIGHT);
-        l.setFormSize(8f);
-        l.setFormToTextSpace(4f);
-        l.setXEntrySpace(6f);
+		// setting data
+		mSeekBarX.setProgress(12);
+		mSeekBarY.setProgress(100);
 
-        // mChart.setDrawLegend(false);
-    }
+		Legend l = mChart.getLegend();
+		l.setPosition(LegendPosition.BELOW_CHART_RIGHT);
+		l.setFormSize(8f);
+		l.setFormToTextSpace(4f);
+		l.setXEntrySpace(6f);
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.bar, menu);
-        return true;
-    }
+		// mChart.setDrawLegend(false);
+	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.bar, menu);
+		return true;
+	}
 
-        switch (item.getItemId()) {
-            case R.id.actionToggleValues: {
-                for (DataSet<?> set : mChart.getData().getDataSets())
-                    set.setDrawValues(!set.isDrawValuesEnabled());
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 
-                mChart.invalidate();
-                break;
-            }
-            case R.id.actionToggleHighlight: {
-                if (mChart.isHighlightEnabled())
-                    mChart.setHighlightEnabled(false);
-                else
-                    mChart.setHighlightEnabled(true);
-                mChart.invalidate();
-                break;
-            }
-            case R.id.actionTogglePinch: {
-                if (mChart.isPinchZoomEnabled())
-                    mChart.setPinchZoom(false);
-                else
-                    mChart.setPinchZoom(true);
+		switch (item.getItemId()) {
+		case R.id.actionToggleValues: {
+			List<IBarDataSet> sets = mChart.getData()
+					.getDataSets();
 
-                mChart.invalidate();
-                break;
-            }
-            case R.id.actionToggleAutoScaleMinMax: {
-                mChart.setAutoScaleMinMaxEnabled(!mChart.isAutoScaleMinMaxEnabled());
-                mChart.notifyDataSetChanged();
-                break;
-            }
-            case R.id.actionToggleHighlightArrow: {
-                if (mChart.isDrawHighlightArrowEnabled())
-                    mChart.setDrawHighlightArrow(false);
-                else
-                    mChart.setDrawHighlightArrow(true);
-                mChart.invalidate();
-                break;
-            }
-            case R.id.actionToggleStartzero: {
-                mChart.getAxisLeft().setStartAtZero(!mChart.getAxisLeft().isStartAtZeroEnabled());
-                mChart.getAxisRight().setStartAtZero(!mChart.getAxisRight().isStartAtZeroEnabled());
-                mChart.invalidate();
-                break;
-            }
-            case R.id.animateX: {
-                mChart.animateX(3000);
-                break;
-            }
-            case R.id.animateY: {
-                mChart.animateY(3000);
-                break;
-            }
-            case R.id.animateXY: {
+			for (IBarDataSet iSet : sets) {
 
-                mChart.animateXY(3000, 3000);
-                break;
-            }
-            case R.id.actionToggleFilter: {
+				BarDataSet set = (BarDataSet) iSet;
+				set.setDrawValues(!set.isDrawValuesEnabled());
+			}
 
-                Approximator a = new Approximator(ApproximatorType.DOUGLAS_PEUCKER, 25);
+			mChart.invalidate();
+			break;
+		}
+		case R.id.actionToggleHighlight: {
+			if(mChart.getData() != null) {
+				mChart.getData().setHighlightEnabled(!mChart.getData().isHighlightEnabled());
+				mChart.invalidate();
+			}
+			break;
+		}
+		case R.id.actionTogglePinch: {
+			if (mChart.isPinchZoomEnabled())
+				mChart.setPinchZoom(false);
+			else
+				mChart.setPinchZoom(true);
 
-                if (!mChart.isFilteringEnabled()) {
-                    mChart.enableFiltering(a);
-                } else {
-                    mChart.disableFiltering();
-                }
-                mChart.invalidate();
-                break;
-            }
-            case R.id.actionSave: {
-                if (mChart.saveToGallery("title" + System.currentTimeMillis(), 50)) {
-                    Toast.makeText(getApplicationContext(), "Saving SUCCESSFUL!",
-                            Toast.LENGTH_SHORT).show();
-                } else
-                    Toast.makeText(getApplicationContext(), "Saving FAILED!", Toast.LENGTH_SHORT)
-                            .show();
-                break;
-            }
-        }
-        return true;
-    }
+			mChart.invalidate();
+			break;
+		}
+		case R.id.actionToggleAutoScaleMinMax: {
+			mChart.setAutoScaleMinMaxEnabled(!mChart.isAutoScaleMinMaxEnabled());
+			mChart.notifyDataSetChanged();
+			break;
+		}
+		case R.id.actionToggleHighlightArrow: {
+			if (mChart.isDrawHighlightArrowEnabled())
+				mChart.setDrawHighlightArrow(false);
+			else
+				mChart.setDrawHighlightArrow(true);
+			mChart.invalidate();
+			break;
+		}
+		case R.id.actionToggleStartzero: {
+			mChart.getAxisLeft().setStartAtZero(!mChart.getAxisLeft().isStartAtZeroEnabled());
+			mChart.getAxisRight().setStartAtZero(!mChart.getAxisRight().isStartAtZeroEnabled());
+			mChart.invalidate();
+			break;
+		}
+		case R.id.animateX: {
+			mChart.animateX(3000);
+			break;
+		}
+		case R.id.animateY: {
+			mChart.animateY(3000);
+			break;
+		}
+		case R.id.animateXY: {
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+			mChart.animateXY(3000, 3000);
+			break;
+		}
+		case R.id.actionToggleFilter: {
 
-        tvX.setText("" + (mSeekBarX.getProgress() + 1));
-        tvY.setText("" + (mSeekBarY.getProgress()));
+			Approximator a = new Approximator(ApproximatorType.DOUGLAS_PEUCKER, 25);
 
-        ArrayList<String> xVals = new ArrayList<String>();
-        for (int i = 0; i < mSeekBarX.getProgress() + 1; i++) {
-            xVals.add(mMonths[i % mMonths.length]);
-        }
+			if (!mChart.isFilteringEnabled()) {
+				mChart.enableFiltering(a);
+			} else {
+				mChart.disableFiltering();
+			}
+			mChart.invalidate();
+			break;
+		}
+		case R.id.actionSave: {
+			if (mChart.saveToGallery("title" + System.currentTimeMillis(), 50)) {
+				Toast.makeText(getApplicationContext(), "Saving SUCCESSFUL!", Toast.LENGTH_SHORT).show();
+			} else
+				Toast.makeText(getApplicationContext(), "Saving FAILED!", Toast.LENGTH_SHORT).show();
+			break;
+		}
+		}
+		return true;
+	}
 
-        ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-        for (int i = 0; i < mSeekBarX.getProgress() + 1; i++) {
-            float mult = (mSeekBarY.getProgress() + 1);
-            float val1 = (float) (Math.random() * mult) + mult / 3;
-            float val2 = (float) (Math.random() * mult) + mult / 3;
-            float val3 = (float) (Math.random() * mult) + mult / 3;
+		tvX.setText("" + (mSeekBarX.getProgress() + 1));
+		tvY.setText("" + (mSeekBarY.getProgress()));
 
-            yVals1.add(new BarEntry(new float[] {
-                    val1, val2, val3
-            }, i));
-        }
+		ArrayList<String> xVals = new ArrayList<String>();
+		for (int i = 0; i < mSeekBarX.getProgress() + 1; i++) {
+			xVals.add(mMonths[i % mMonths.length]);
+		}
 
-        BarDataSet set1 = new BarDataSet(yVals1, "Statistics Vienna 2014");
-        set1.setColors(getColors());
-        set1.setStackLabels(new String[] {
-                "Births", "Divorces", "Marriages"
-        });
+		ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
 
-        ArrayList<BarDataSet> dataSets = new ArrayList<BarDataSet>();
-        dataSets.add(set1);
+		for (int i = 0; i < mSeekBarX.getProgress() + 1; i++) {
+			float mult = (mSeekBarY.getProgress() + 1);
+			float val1 = (float) (Math.random() * mult) + mult / 3;
+			float val2 = (float) (Math.random() * mult) + mult / 3;
+			float val3 = (float) (Math.random() * mult) + mult / 3;
 
-        BarData data = new BarData(xVals, dataSets);
-        data.setValueFormatter(new MyValueFormatter());
+			yVals1.add(new BarEntry(new float[] { val1, val2, val3 }, i));
+		}
 
-        mChart.setData(data);
-        mChart.invalidate();
-    }
+		BarDataSet set1 = new BarDataSet(yVals1, "Statistics Vienna 2014");
+		set1.setColors(getColors());
+		set1.setStackLabels(new String[] { "Births", "Divorces", "Marriages" });
 
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        // TODO Auto-generated method stub
+		ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
+		dataSets.add(set1);
 
-    }
+		BarData data = new BarData(xVals, dataSets);
+		data.setValueFormatter(new MyValueFormatter());
 
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        // TODO Auto-generated method stub
+		mChart.setData(data);
+		mChart.invalidate();
+	}
 
-    }
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
 
-    @Override
-    public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+	}
 
-        BarEntry entry = (BarEntry) e;
-        Log.i("VAL SELECTED",
-                "Value: " + entry.getVals()[h.getStackIndex()]);
-    }
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
 
-    @Override
-    public void onNothingSelected() {
-        // TODO Auto-generated method stub
+	}
 
-    }
-    
-    private int[] getColors() {
-        
-        int stacksize = 3;
-        
-        // have as many colors as stack-values per entry
-        int []colors = new int[stacksize];
-        
-        for(int i = 0; i < stacksize; i++) {
-            colors[i] = ColorTemplate.VORDIPLOM_COLORS[i];
-        }      
-        
-        return colors;
-    }
+	@Override
+	public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+
+		BarEntry entry = (BarEntry) e;
+
+		if (entry.getVals() != null)
+			Log.i("VAL SELECTED", "Value: " + entry.getVals()[h.getStackIndex()]);
+		else
+			Log.i("VAL SELECTED", "Value: " + entry.getVal());
+	}
+
+	@Override
+	public void onNothingSelected() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private int[] getColors() {
+
+		int stacksize = 3;
+
+		// have as many colors as stack-values per entry
+		int[] colors = new int[stacksize];
+
+		for (int i = 0; i < stacksize; i++) {
+			colors[i] = ColorTemplate.VORDIPLOM_COLORS[i];
+		}
+
+		return colors;
+	}
 }

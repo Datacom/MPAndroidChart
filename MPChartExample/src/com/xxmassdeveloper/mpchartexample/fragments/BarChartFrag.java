@@ -13,6 +13,7 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.xxmassdeveloper.mpchartexample.R;
 import com.xxmassdeveloper.mpchartexample.custom.MyMarkerView;
@@ -38,8 +39,6 @@ public class BarChartFrag extends SimpleFragment implements OnChartGestureListen
         MyMarkerView mv = new MyMarkerView(getActivity(), R.layout.custom_marker_view);
 
         mChart.setMarkerView(mv);
-        
-        mChart.setHighlightEnabled(false);
 
         mChart.setDrawGridBackground(false);
         mChart.setDrawBarShadow(false);
@@ -64,6 +63,17 @@ public class BarChartFrag extends SimpleFragment implements OnChartGestureListen
         parent.addView(mChart);
         
         return v;
+    }
+
+    @Override
+    public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+        Log.i("Gesture", "START");
+    }
+
+    @Override
+    public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+        Log.i("Gesture", "END");
+        mChart.highlightValues(null);
     }
 
     @Override

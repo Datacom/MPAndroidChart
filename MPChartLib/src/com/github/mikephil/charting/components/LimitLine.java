@@ -4,6 +4,7 @@ package com.github.mikephil.charting.components;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 
 import com.github.mikephil.charting.utils.Utils;
 
@@ -14,7 +15,7 @@ import com.github.mikephil.charting.utils.Utils;
  * 
  * @author Philipp Jahoda
  */
-public class LimitLine {
+public class LimitLine extends ComponentBase {
 
     /** limit / maximum (the y-value or xIndex) */
     private float mLimit = 0f;
@@ -24,12 +25,6 @@ public class LimitLine {
 
     /** the color of the limit line */
     private int mLineColor = Color.rgb(237, 91, 91);
-
-    /** the color of the value-text */
-    private int mValueTextColor = Color.BLACK;
-
-    /** the size of the label text */
-    private float mTextSize = 13f;
 
     /** the style of the label text */
     private Paint.Style mTextStyle = Paint.Style.FILL_AND_STROKE;
@@ -41,11 +36,11 @@ public class LimitLine {
     private DashPathEffect mDashPathEffect = null;
 
     /** indicates the position of the LimitLine label */
-    private LimitLabelPosition mLabelPosition = LimitLabelPosition.POS_RIGHT;
+    private LimitLabelPosition mLabelPosition = LimitLabelPosition.RIGHT_TOP;
 
     /** enum that indicates the position of the LimitLine label */
     public enum LimitLabelPosition {
-        POS_LEFT, POS_RIGHT
+        LEFT_TOP, LEFT_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM
     }
 
     /**
@@ -163,24 +158,6 @@ public class LimitLine {
 
     /**
      * Sets the color of the value-text that is drawn next to the LimitLine.
-     * 
-     * @param color
-     */
-    public void setTextColor(int color) {
-        mValueTextColor = color;
-    }
-
-    /**
-     * Returns the color of the value-text that is drawn next to the LimitLine.
-     * 
-     * @return
-     */
-    public int getTextColor() {
-        return mValueTextColor;
-    }
-
-    /**
-     * Sets the color of the value-text that is drawn next to the LimitLine.
      * Default: Paint.Style.FILL_AND_STROKE
      *
      * @param style
@@ -234,23 +211,5 @@ public class LimitLine {
      */
     public String getLabel() {
         return mLabel;
-    }
-
-    /**
-     * Sets the size of the label-text.
-     * 
-     * @param size
-     */
-    public void setTextSize(float size) {
-        mTextSize = Utils.convertDpToPixel(size);
-    }
-
-    /**
-     * Returns the size of the label text.
-     * 
-     * @return
-     */
-    public float getTextSize() {
-        return mTextSize;
     }
 }

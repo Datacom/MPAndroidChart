@@ -5,7 +5,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.github.mikephil.charting.data.ScatterData;
-import com.github.mikephil.charting.interfaces.ScatterDataProvider;
+import com.github.mikephil.charting.interfaces.dataprovider.ScatterDataProvider;
 import com.github.mikephil.charting.renderer.ScatterChartRenderer;
 
 /**
@@ -45,18 +45,6 @@ public class ScatterChart extends BarLineChartBase<ScatterData> implements Scatt
         mRenderer = new ScatterChartRenderer(this, mAnimator, mViewPortHandler);
         mXChartMin = -0.5f;
     }
-
-    // @Override
-    // public void calculateOffsets() {
-    // super.calculateOffsets();
-    //
-    // float offset = mData.getGreatestShapeSize() / 2f;
-    // mViewPortHandler.restrainViewPort(mViewPortHandler.offsetLeft() - offset,
-    // mViewPortHandler.offsetTop(), mViewPortHandler.offsetRight() - offset,
-    // mViewPortHandler.offsetBottom());
-    //
-    // prepareOffsetMatrix();
-    // }
 
     @Override
     protected void calcMinMax() {

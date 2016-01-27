@@ -3,8 +3,7 @@ package com.github.mikephil.charting.utils;
 
 /**
  * Immutable class for describing width and height dimensions in some arbitrary
- * unit.
- * Replacement for the android.Util.SizeF which is available only on API >= 21.
+ * unit. Replacement for the android.Util.SizeF which is available only on API >= 21.
  */
 public final class FSize {
 
@@ -15,7 +14,6 @@ public final class FSize {
         this.width = width;
         this.height = height;
     }
-
 
     @Override
     public boolean equals(final Object obj) {

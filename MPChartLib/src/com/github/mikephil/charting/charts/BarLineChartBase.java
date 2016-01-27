@@ -19,42 +19,41 @@ import com.github.mikephil.charting.components.XAxis.XAxisPosition;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.components.YAxis.AxisDependency;
 import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarLineScatterCandleData;
-import com.github.mikephil.charting.data.BarLineScatterCandleDataSet;
-import com.github.mikephil.charting.data.DataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.BarLineScatterCandleBubbleData;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.filter.Approximator;
-import com.github.mikephil.charting.interfaces.BarLineScatterCandleDataProvider;
+import com.github.mikephil.charting.highlight.ChartHighlighter;
+import com.github.mikephil.charting.interfaces.datasets.IBarLineScatterCandleBubbleDataSet;
+import com.github.mikephil.charting.interfaces.dataprovider.BarLineScatterCandleBubbleDataProvider;
 import com.github.mikephil.charting.jobs.MoveViewJob;
 import com.github.mikephil.charting.listener.BarLineChartTouchListener;
 import com.github.mikephil.charting.listener.OnDrawListener;
 import com.github.mikephil.charting.renderer.XAxisRenderer;
 import com.github.mikephil.charting.renderer.YAxisRenderer;
-import com.github.mikephil.charting.utils.FillFormatter;
-import com.github.mikephil.charting.utils.Highlight;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.PointD;
-import com.github.mikephil.charting.utils.SelectionDetail;
 import com.github.mikephil.charting.utils.Transformer;
 import com.github.mikephil.charting.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Base-class of LineChart, BarChart, ScatterChart and CandleStickChart.
- * 
+ *
  * @author Philipp Jahoda
  */
 @SuppressLint("RtlHardcoded")
-public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? extends BarLineScatterCandleDataSet<? extends Entry>>>
-        extends Chart<T> implements BarLineScatterCandleDataProvider {
+public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<? extends IBarLineScatterCandleBubbleDataSet<? extends Entry>>>
+        extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
 
-    /** the maximum number of entried to which values will be drawn */
+    /**
+     * the maximum number of entries to which values will be drawn
+     * (entry numbers greater than this value will cause value-labels to disappear)
+     */
     protected int mMaxVisibleCount = 100;
 
-    /** flag that indicates if auto scaling on the y axis is enabled */
+    /**
+     * flag that indicates if auto scaling on the y axis is enabled
+     */
     private boolean mAutoScaleMinMaxEnabled = false;
     private Integer mAutoScaleLastLowestVisibleXIndex = null;
     private Integer mAutoScaleLastHighestVisibleXIndex = null;
@@ -66,7 +65,9 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      */
     protected boolean mPinchZoomEnabled = false;
 
-    /** flag that indicates if double tap zoom is enabled or not */
+    /**
+     * flag that indicates if double tap zoom is enabled or not
+     */
     protected boolean mDoubleTapToZoomEnabled = true;
 
     /**
@@ -75,36 +76,56 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      */
     protected boolean mHighlightPerDragEnabled = true;
 
-    /** if true, dragging is enabled for the chart */
+    /**
+     * if true, dragging is enabled for the chart
+     */
     private boolean mDragEnabled = true;
 
     private boolean mScaleXEnabled = true;
     private boolean mScaleYEnabled = true;
 
-    /** if true, data filtering is enabled */
+    /**
+     * if true, data filtering is enabled
+     */
     protected boolean mFilterData = false;
 
-    /** paint object for the (by default) lightgrey background of the grid */
+    /**
+     * paint object for the (by default) lightgrey background of the grid
+     */
     protected Paint mGridBackgroundPaint;
 
     protected Paint mBorderPaint;
 
-    /** flag indicating if the grid background should be drawn or not */
-    protected boolean mDrawGridBackground = true;
+    /**
+     * flag indicating if the grid background should be drawn or not
+     */
+    protected boolean mDrawGridBackground = false;
 
     protected boolean mDrawBorders = false;
 
-    /** the listener for user drawing on the chart */
+    /**
+     * Sets the minimum offset (padding) around the chart, defaults to 15
+     */
+    protected float mMinOffset = 15.f;
+
+    /**
+     * the listener for user drawing on the chart
+     */
     protected OnDrawListener mDrawListener;
 
     /**
-     * the object representing the labels on the y-axis, this object is prepared
-     * in the pepareYLabels() method
+     * the object representing the labels on the left y-axis
      */
     protected YAxis mAxisLeft;
+
+    /**
+     * the object representing the labels on the right y-axis
+     */
     protected YAxis mAxisRight;
 
-    /** the object representing the labels on the x-axis */
+    /**
+     * the object representing the labels on the x-axis
+     */
     protected XAxis mXAxis;
 
     protected YAxisRenderer mAxisRendererLeft;
@@ -147,6 +168,8 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
         mXAxisRenderer = new XAxisRenderer(mViewPortHandler, mXAxis, mLeftAxisTransformer);
 
+        setHighlighter(new ChartHighlighter(this));
+
         mChartTouchListener = new BarLineChartTouchListener(this, mViewPortHandler.getMatrixTouch());
 
         mGridBackgroundPaint = new Paint();
@@ -169,7 +192,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mDataNotSet)
+        if (mData == null)
             return;
 
         long starttime = System.currentTimeMillis();
@@ -238,7 +261,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
         // if highlighting is enabled
         if (valuesToHighlight())
-            mRenderer.drawHighlighted(canvas, mIndicesToHightlight);
+            mRenderer.drawHighlighted(canvas, mIndicesToHighlight);
 
         // Removes clipping rectangle
         canvas.restoreToCount(clipRestoreCount);
@@ -296,7 +319,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     @Override
     public void notifyDataSetChanged() {
 
-        if (mDataNotSet) {
+        if (mData == null) {
             if (mLogEnabled)
                 Log.i(LOG_TAG, "Preparing... DATA NOT SET.");
             return;
@@ -310,10 +333,10 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
         calcMinMax();
 
-        if (mAxisLeft.needsDefaultFormatter())
-            mAxisLeft.setValueFormatter(mDefaultFormatter);
-        if (mAxisRight.needsDefaultFormatter())
-            mAxisRight.setValueFormatter(mDefaultFormatter);
+//        if (mAxisLeft.needsDefaultFormatter())
+//            mAxisLeft.setValueFormatter(mDefaultFormatter);
+//        if (mAxisRight.needsDefaultFormatter())
+//            mAxisRight.setValueFormatter(mDefaultFormatter);
 
         mAxisRendererLeft.computeAxis(mAxisLeft.mAxisMinimum, mAxisLeft.mAxisMaximum);
         mAxisRendererRight.computeAxis(mAxisRight.mAxisMinimum, mAxisRight.mAxisMaximum);
@@ -361,21 +384,46 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
         mXChartMax = mData.getXVals().size() - 1;
         mDeltaX = Math.abs(mXChartMax - mXChartMin);
 
-        mAxisLeft.mAxisMaximum = !Float.isNaN(mAxisLeft.getAxisMaxValue()) ? mAxisLeft
-                .getAxisMaxValue() : maxLeft + topSpaceLeft;
-        mAxisRight.mAxisMaximum = !Float.isNaN(mAxisRight.getAxisMaxValue()) ? mAxisRight
-                .getAxisMaxValue() : maxRight + topSpaceRight;
-        mAxisLeft.mAxisMinimum = !Float.isNaN(mAxisLeft.getAxisMinValue()) ? mAxisLeft
-                .getAxisMinValue() : minLeft - bottomSpaceLeft;
-        mAxisRight.mAxisMinimum = !Float.isNaN(mAxisRight.getAxisMinValue()) ? mAxisRight
-                .getAxisMinValue() : minRight - bottomSpaceRight;
+        // Consider sticking one of the edges of the axis to zero (0.0)
 
-        // consider starting at zero (0)
-        if (mAxisLeft.isStartAtZeroEnabled())
-            mAxisLeft.mAxisMinimum = 0f;
+        if (mAxisLeft.isStartAtZeroEnabled()) {
+            if (minLeft < 0.f && maxLeft < 0.f) {
+                // If the values are all negative, let's stay in the negative zone
+                mAxisLeft.mAxisMinimum = Math.min(0.f, !Float.isNaN(mAxisLeft.getAxisMinValue()) ? mAxisLeft.getAxisMinValue() : (minLeft - bottomSpaceLeft));
+                mAxisLeft.mAxisMaximum = 0.f;
+            } else if (minLeft >= 0.0) {
+                // We have positive values only, stay in the positive zone
+                mAxisLeft.mAxisMinimum = 0.f;
+                mAxisLeft.mAxisMaximum = Math.max(0.f, !Float.isNaN(mAxisLeft.getAxisMaxValue()) ? mAxisLeft.getAxisMaxValue() : (maxLeft + topSpaceLeft));
+            } else {
+                // Stick the minimum to 0.0 or less, and maximum to 0.0 or more (startAtZero for negative/positive at the same time)
+                mAxisLeft.mAxisMinimum = Math.min(0.f, !Float.isNaN(mAxisLeft.getAxisMinValue()) ? mAxisLeft.getAxisMinValue() : (minLeft - bottomSpaceLeft));
+                mAxisLeft.mAxisMaximum = Math.max(0.f, !Float.isNaN(mAxisLeft.getAxisMaxValue()) ? mAxisLeft.getAxisMaxValue() : (maxLeft + topSpaceLeft));
+            }
+        } else {
+            // Use the values as they are
+            mAxisLeft.mAxisMinimum = !Float.isNaN(mAxisLeft.getAxisMinValue()) ? mAxisLeft.getAxisMinValue() : (minLeft - bottomSpaceLeft);
+            mAxisLeft.mAxisMaximum = !Float.isNaN(mAxisLeft.getAxisMaxValue()) ? mAxisLeft.getAxisMaxValue() : (maxLeft + topSpaceLeft);
+        }
 
-        if (mAxisRight.isStartAtZeroEnabled())
-            mAxisRight.mAxisMinimum = 0f;
+        if (mAxisRight.isStartAtZeroEnabled()) {
+            if (minRight < 0.f && maxRight < 0.f) {
+                // If the values are all negative, let's stay in the negative zone
+                mAxisRight.mAxisMinimum = Math.min(0.f, !Float.isNaN(mAxisRight.getAxisMinValue()) ? mAxisRight.getAxisMinValue() : (minRight - bottomSpaceRight));
+                mAxisRight.mAxisMaximum = 0.f;
+            } else if (minRight >= 0.f) {
+                // We have positive values only, stay in the positive zone
+                mAxisRight.mAxisMinimum = 0.f;
+                mAxisRight.mAxisMaximum = Math.max(0.f, !Float.isNaN(mAxisRight.getAxisMaxValue()) ? mAxisRight.getAxisMaxValue() : (maxRight + topSpaceRight));
+            } else {
+                // Stick the minimum to 0.0 or less, and maximum to 0.0 or more (startAtZero for negative/positive at the same time)
+                mAxisRight.mAxisMinimum = Math.min(0.f, !Float.isNaN(mAxisRight.getAxisMinValue()) ? mAxisRight.getAxisMinValue() : (minRight - bottomSpaceRight));
+                mAxisRight.mAxisMaximum = Math.max(0.f, !Float.isNaN(mAxisRight.getAxisMaxValue()) ? mAxisRight.getAxisMaxValue() : (maxRight + topSpaceRight));
+            }
+        } else {
+            mAxisRight.mAxisMinimum = !Float.isNaN(mAxisRight.getAxisMinValue()) ? mAxisRight.getAxisMinValue() : (minRight - bottomSpaceRight);
+            mAxisRight.mAxisMaximum = !Float.isNaN(mAxisRight.getAxisMaxValue()) ? mAxisRight.getAxisMaxValue() : (maxRight + topSpaceRight);
+        }
 
         mAxisLeft.mAxisRange = Math.abs(mAxisLeft.mAxisMaximum - mAxisLeft.mAxisMinimum);
         mAxisRight.mAxisRange = Math.abs(mAxisRight.mAxisMaximum - mAxisRight.mAxisMinimum);
@@ -409,17 +457,24 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
                         || mLegend.getPosition() == LegendPosition.BELOW_CHART_RIGHT
                         || mLegend.getPosition() == LegendPosition.BELOW_CHART_CENTER) {
 
-                    float yOffset = mLegend.mTextHeightMax; // It's
-                                                            // possible
-                                                            // that we do
-                                                            // not need
-                                                            // this offset
-                                                            // anymore as
-                                                            // it is
-                                                            // available
-                                                            // through the
-                                                            // extraOffsets
+                    // It's possible that we do not need this offset anymore as it
+                    //   is available through the extraOffsets, but changing it can mean
+                    //   changing default visibility for existing apps.
+                    float yOffset = mLegend.mTextHeightMax;
+
                     offsetBottom += Math.min(mLegend.mNeededHeight + yOffset,
+                            mViewPortHandler.getChartHeight() * mLegend.getMaxSizePercent());
+
+                } else if (mLegend.getPosition() == LegendPosition.ABOVE_CHART_LEFT
+                        || mLegend.getPosition() == LegendPosition.ABOVE_CHART_RIGHT
+                        || mLegend.getPosition() == LegendPosition.ABOVE_CHART_CENTER) {
+
+                    // It's possible that we do not need this offset anymore as it
+                    //   is available through the extraOffsets, but changing it can mean
+                    //   changing default visibility for existing apps.
+                    float yOffset = mLegend.mTextHeightMax;
+
+                    offsetTop += Math.min(mLegend.mNeededHeight + yOffset,
                             mViewPortHandler.getChartHeight() * mLegend.getMaxSizePercent());
 
                 }
@@ -438,7 +493,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
             if (mXAxis.isEnabled() && mXAxis.isDrawLabelsEnabled()) {
 
-                float xlabelheight = mXAxis.mLabelHeight * 2f;
+                float xlabelheight = mXAxis.mLabelRotatedHeight + mXAxis.getYOffset();
 
                 // offsets for x-labels
                 if (mXAxis.getPosition() == XAxisPosition.BOTTOM) {
@@ -461,10 +516,13 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
             offsetBottom += getExtraBottomOffset();
             offsetLeft += getExtraLeftOffset();
 
-            float min = Utils.convertDpToPixel(10f);
+            float minOffset = Utils.convertDpToPixel(mMinOffset);
 
-            mViewPortHandler.restrainViewPort(Math.max(min, offsetLeft), Math.max(min, offsetTop),
-                    Math.max(min, offsetRight), Math.max(min, offsetBottom));
+            mViewPortHandler.restrainViewPort(
+                    Math.max(minOffset, offsetLeft),
+                    Math.max(minOffset, offsetTop),
+                    Math.max(minOffset, offsetRight),
+                    Math.max(minOffset, offsetBottom));
 
             if (mLogEnabled) {
                 Log.i(LOG_TAG, "offsetLeft: " + offsetLeft + ", offsetTop: " + offsetTop
@@ -491,40 +549,72 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
             mViewPortHandler.getMatrixTouch().getValues(values);
 
             mXAxis.mAxisLabelModulus = (int) Math
-                    .ceil((mData.getXValCount() * mXAxis.mLabelWidth)
+                    .ceil((mData.getXValCount() * mXAxis.mLabelRotatedWidth)
                             / (mViewPortHandler.contentWidth() * values[Matrix.MSCALE_X]));
 
         }
 
         if (mLogEnabled)
-            Log.i(LOG_TAG, "X-Axis modulus: " + mXAxis.mAxisLabelModulus + ", x-axis label width: "
-                    + mXAxis.mLabelWidth + ", content width: " + mViewPortHandler.contentWidth());
+            Log.i(LOG_TAG, "X-Axis modulus: " + mXAxis.mAxisLabelModulus +
+                    ", x-axis label width: " + mXAxis.mLabelWidth +
+                    ", x-axis label rotated width: " + mXAxis.mLabelRotatedWidth +
+                    ", content width: " + mViewPortHandler.contentWidth());
 
         if (mXAxis.mAxisLabelModulus < 1)
             mXAxis.mAxisLabelModulus = 1;
     }
 
     @Override
-    protected float[] getMarkerPosition(Entry e, int dataSetIndex) {
+    protected float[] getMarkerPosition(Entry e, Highlight highlight) {
 
+        int dataSetIndex = highlight.getDataSetIndex();
         float xPos = e.getXIndex();
+        float yPos = e.getVal();
 
         if (this instanceof BarChart) {
 
             BarData bd = (BarData) mData;
             float space = bd.getGroupSpace();
-            float j = mData.getDataSetByIndex(dataSetIndex)
-                    .getEntryPosition(e);
+            int setCount = mData.getDataSetCount();
+            int i = e.getXIndex();
 
-            float x = (j * (mData.getDataSetCount() - 1)) + dataSetIndex + space * j + space
-                    / 2f;
+            if (this instanceof HorizontalBarChart) {
 
-            xPos += x;
+                // calculate the x-position, depending on datasetcount
+                float y = i + i * (setCount - 1) + dataSetIndex + space * i + space / 2f;
+
+                yPos = y;
+
+                BarEntry entry = (BarEntry) e;
+                if (entry.getVals() != null) {
+                    xPos = highlight.getRange().to;
+                } else {
+                    xPos = e.getVal();
+                }
+
+                xPos *= mAnimator.getPhaseY();
+            } else {
+
+                float x = i + i * (setCount - 1) + dataSetIndex + space * i + space / 2f;
+
+                xPos = x;
+
+                BarEntry entry = (BarEntry) e;
+                if (entry.getVals() != null) {
+                    yPos = highlight.getRange().to;
+                } else {
+                    yPos = e.getVal();
+                }
+
+                yPos *= mAnimator.getPhaseY();
+            }
+        } else {
+            yPos *= mAnimator.getPhaseY();
         }
 
         // position of the marker depends on selected value index and value
-        float[] pts = new float[] {
-                xPos, e.getVal() * mAnimator.getPhaseY()
+        float[] pts = new float[]{
+                xPos, yPos
         };
 
         getTransformer(mData.getDataSetByIndex(dataSetIndex).getAxisDependency())
@@ -567,7 +657,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
 
-        if (mChartTouchListener == null || mDataNotSet)
+        if (mChartTouchListener == null || mData == null)
             return false;
 
         // check if touch gestures are enabled
@@ -623,7 +713,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Zooms in or out by the given scale factor. x and y are the coordinates
      * (in pixels) of the zoom center.
-     * 
+     *
      * @param scaleX if < 1f --> zoom out, if > 1f --> zoom in
      * @param scaleY if < 1f --> zoom out, if > 1f --> zoom in
      * @param x
@@ -658,7 +748,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Sets the minimum scale factor value to which can be zoomed out. 1f =
      * fitScreen
-     * 
+     *
      * @param scaleX
      * @param scaleY
      */
@@ -672,7 +762,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      * visible at once (no further zooming out allowed). If this is e.g. set to
      * 10, no more than 10 values on the x-axis can be viewed at once without
      * scrolling.
-     * 
+     *
      * @param maxXRange The maximum visible range of x-values.
      */
     public void setVisibleXRangeMaximum(float maxXRange) {
@@ -683,9 +773,9 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Sets the size of the area (range on the x-axis) that should be minimum
      * visible at once (no further zooming in allowed). If this is e.g. set to
-     * 10, no more than 10 values on the x-axis can be viewed at once without
+     * 10, no less than 10 values on the x-axis can be viewed at once without
      * scrolling.
-     * 
+     *
      * @param minXRange The minimum visible range of x-values.
      */
     public void setVisibleXRangeMinimum(float minXRange) {
@@ -698,7 +788,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      * pinching and zooming. e.g. minRange=10, maxRange=100 no less than 10
      * values and no more that 100 values can be viewed at once without
      * scrolling
-     * 
+     *
      * @param minXRange
      * @param maxXRange
      */
@@ -711,9 +801,9 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Sets the size of the area (range on the y-axis) that should be maximum
      * visible at once.
-     * 
+     *
      * @param maxYRange the maximum visible range on the y-axis
-     * @param axis - the axis for which this limit should apply
+     * @param axis      - the axis for which this limit should apply
      */
     public void setVisibleYRangeMaximum(float maxYRange, AxisDependency axis) {
         float yScale = getDeltaY(axis) / maxYRange;
@@ -722,7 +812,8 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Moves the left side of the current viewport to the specified x-index.
-     * 
+     * This also refreshes the chart by calling invalidate().
+     *
      * @param xIndex
      */
     public void moveViewToX(float xIndex) {
@@ -735,21 +826,14 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
         } else {
             mJobs.add(job);
         }
-
-        // float[] pts = new float[] {
-        // xIndex, 0f
-        // };
-        //
-        // getTransformer(AxisDependency.LEFT).pointValuesToPixel(pts);
-        //
-        // mViewPortHandler.centerViewPort(pts, this);
     }
 
     /**
      * Centers the viewport to the specified y-value on the y-axis.
-     * 
+     * This also refreshes the chart by calling invalidate().
+     *
      * @param yValue
-     * @param axis - which axis should be used as a reference for the y-axis
+     * @param axis   - which axis should be used as a reference for the y-axis
      */
     public void moveViewToY(float yValue, AxisDependency axis) {
 
@@ -769,10 +853,11 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      * This will move the left side of the current viewport to the specified
      * x-index on the x-axis, and center the viewport to the specified y-value
      * on the y-axis.
-     * 
+     * This also refreshes the chart by calling invalidate().
+     *
      * @param xIndex
      * @param yValue
-     * @param axis - which axis should be used as a reference for the y-axis
+     * @param axis   - which axis should be used as a reference for the y-axis
      */
     public void moveViewTo(float xIndex, float yValue, AxisDependency axis) {
 
@@ -791,10 +876,11 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * This will move the center of the current viewport to the specified
      * x-index and y-value.
+     * This also refreshes the chart by calling invalidate().
      *
      * @param xIndex
      * @param yValue
-     * @param axis - which axis should be used as a reference for the y-axis
+     * @param axis   - which axis should be used as a reference for the y-axis
      */
     public void centerViewTo(int xIndex, float yValue, AxisDependency axis) {
 
@@ -812,7 +898,9 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
         }
     }
 
-    /** flag that indicates if a custom viewport offset has been set */
+    /**
+     * flag that indicates if a custom viewport offset has been set
+     */
     private boolean mCustomViewPortEnabled = false;
 
     /**
@@ -821,14 +909,14 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      * automatically calculating it's offsets. Use resetViewPortOffsets() to
      * undo this. ONLY USE THIS WHEN YOU KNOW WHAT YOU ARE DOING, else use
      * setExtraOffsets(...).
-     * 
+     *
      * @param left
      * @param top
      * @param right
      * @param bottom
      */
     public void setViewPortOffsets(final float left, final float top,
-            final float right, final float bottom) {
+                                   final float right, final float bottom) {
 
         mCustomViewPortEnabled = true;
         post(new Runnable() {
@@ -859,7 +947,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Returns the delta-y value (y-value range) of the specified axis.
-     * 
+     *
      * @param axis
      * @return
      */
@@ -872,7 +960,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Sets the OnDrawListener
-     * 
+     *
      * @param drawListener
      */
     public void setOnDrawListener(OnDrawListener drawListener) {
@@ -881,7 +969,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Gets the OnDrawListener. May be null.
-     * 
+     *
      * @return
      */
     public OnDrawListener getDrawListener() {
@@ -891,7 +979,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Returns the position (in pixels) the provided Entry has inside the chart
      * view or null, if the provided Entry is null.
-     * 
+     *
      * @param e
      * @return
      */
@@ -900,7 +988,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
         if (e == null)
             return null;
 
-        float[] vals = new float[] {
+        float[] vals = new float[]{
                 e.getXIndex(), e.getVal()
         };
 
@@ -912,7 +1000,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * sets the number of maximum visible drawn values on the chart only active
      * when setDrawValues() is enabled
-     * 
+     *
      * @param count
      */
     public void setMaxVisibleValueCount(int count) {
@@ -926,7 +1014,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Set this to true to allow highlighting per dragging over the chart
      * surface when it is fully zoomed out. Default: true
-     * 
+     *
      * @param enabled
      */
     public void setHighlightPerDragEnabled(boolean enabled) {
@@ -940,7 +1028,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Sets the color for the background of the chart-drawing area (everything
      * behind the grid lines).
-     * 
+     *
      * @param color
      */
     public void setGridBackgroundColor(int color) {
@@ -950,7 +1038,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Set this to true to enable dragging (moving the chart with the finger)
      * for the chart (this does not effect scaling).
-     * 
+     *
      * @param enabled
      */
     public void setDragEnabled(boolean enabled) {
@@ -959,7 +1047,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Returns true if dragging is enabled for the chart, false if not.
-     * 
+     *
      * @return
      */
     public boolean isDragEnabled() {
@@ -969,7 +1057,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Set this to true to enable scaling (zooming in and out by gesture) for
      * the chart (this does not effect dragging) on both X- and Y-Axis.
-     * 
+     *
      * @param enabled
      */
     public void setScaleEnabled(boolean enabled) {
@@ -996,7 +1084,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Set this to true to enable zooming in by double-tap on the chart.
      * Default: enabled
-     * 
+     *
      * @param enabled
      */
     public void setDoubleTapToZoomEnabled(boolean enabled) {
@@ -1005,7 +1093,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Returns true if zooming via double-tap is enabled false if not.
-     * 
+     *
      * @return
      */
     public boolean isDoubleTapToZoomEnabled() {
@@ -1014,7 +1102,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * set this to true to draw the grid background, false if not
-     * 
+     *
      * @param enabled
      */
     public void setDrawGridBackground(boolean enabled) {
@@ -1024,7 +1112,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Sets drawing the borders rectangle to true. If this is enabled, there is
      * no point drawing the axis-lines of x- and y-axis.
-     * 
+     *
      * @param enabled
      */
     public void setDrawBorders(boolean enabled) {
@@ -1033,7 +1121,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Sets the width of the border lines in dp.
-     * 
+     *
      * @param width
      */
     public void setBorderWidth(float width) {
@@ -1042,7 +1130,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Sets the color of the chart border lines.
-     * 
+     *
      * @param color
      */
     public void setBorderColor(int color) {
@@ -1050,106 +1138,35 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     }
 
     /**
+     * Gets the minimum offset (padding) around the chart, defaults to 15.f
+     */
+    public float getMinOffset() {
+        return mMinOffset;
+    }
+
+    /**
+     * Sets the minimum offset (padding) around the chart, defaults to 15.f
+     */
+    public void setMinOffset(float minOffset) {
+        mMinOffset = minOffset;
+    }
+
+    /**
      * Returns the Highlight object (contains x-index and DataSet index) of the
      * selected value at the given touch point inside the Line-, Scatter-, or
      * CandleStick-Chart.
-     * 
+     *
      * @param x
      * @param y
      * @return
      */
     public Highlight getHighlightByTouchPoint(float x, float y) {
 
-        if (mDataNotSet || mData == null) {
+        if (mData == null) {
             Log.e(LOG_TAG, "Can't select by touch. No data set.");
             return null;
-        }
-
-        // create an array of the touch-point
-        float[] pts = new float[2];
-        pts[0] = x;
-
-        // take any transformer to determine the x-axis value
-        mLeftAxisTransformer.pixelsToValue(pts);
-
-        double xTouchVal = pts[0];
-        double base = Math.floor(xTouchVal);
-
-        double touchOffset = mDeltaX * 0.025;
-
-        // touch out of chart
-        if (xTouchVal < -touchOffset || xTouchVal > mDeltaX + touchOffset)
-            return null;
-
-        if (base < 0)
-            base = 0;
-        if (base >= mDeltaX)
-            base = mDeltaX - 1;
-
-        int xIndex = (int) base;
-
-        // check if we are more than half of a x-value or not
-        if (xTouchVal - base > 0.5) {
-            xIndex = (int) base + 1;
-        }
-
-        List<SelectionDetail> valsAtIndex = getSelectionDetailsAtIndex(xIndex);
-
-        float leftdist = Utils.getMinimumDistance(valsAtIndex, y, AxisDependency.LEFT);
-        float rightdist = Utils.getMinimumDistance(valsAtIndex, y, AxisDependency.RIGHT);
-
-        if (mData.getFirstRight() == null)
-            rightdist = Float.MAX_VALUE;
-        if (mData.getFirstLeft() == null)
-            leftdist = Float.MAX_VALUE;
-
-        AxisDependency axis = leftdist < rightdist ? AxisDependency.LEFT : AxisDependency.RIGHT;
-
-        int dataSetIndex = Utils.getClosestDataSetIndex(valsAtIndex, y, axis);
-
-        if (dataSetIndex == -1)
-            return null;
-
-        return new Highlight(xIndex, dataSetIndex);
-    }
-
-    /**
-     * Returns an array of SelectionDetail objects for the given x-index. The SelectionDetail
-     * objects give information about the value at the selected index and the
-     * DataSet it belongs to. INFORMATION: This method does calculations at
-     * runtime. Do not over-use in performance critical situations.
-     *
-     * @return
-     */
-    protected List<SelectionDetail> getSelectionDetailsAtIndex(int xIndex) {
-
-        List<SelectionDetail> vals = new ArrayList<SelectionDetail>();
-
-        float[] pts = new float[2];
-
-        for (int i = 0; i < mData.getDataSetCount(); i++) {
-
-            DataSet<?> dataSet = mData.getDataSetByIndex(i);
-
-            // dont include datasets that cannot be highlighted
-            if(!dataSet.isHighlightEnabled())
-                continue;
-
-            // extract all y-values from all DataSets at the given x-index
-            final float yVal = dataSet.getYValForXIndex(xIndex);
-            if (yVal == Float.NaN)
-                continue;
-
-            pts[1] = yVal;
-
-            getTransformer(dataSet.getAxisDependency()).pointValuesToPixel(pts);
-
-            if (!Float.isNaN(pts[1])) {
-                vals.add(new SelectionDetail(pts[1], i, dataSet));
-            }
-        }
-
-        return vals;
+        } else
+            return getHighlighter().getHighlight(x, y);
     }
 
     /**
@@ -1157,7 +1174,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      * (encapsulated in a PointD). This method transforms pixel coordinates to
      * coordinates / values in the chart. This is the opposite method to
      * getPixelsForValues(...).
-     * 
+     *
      * @param x
      * @param y
      * @return
@@ -1180,14 +1197,14 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Transforms the given chart values into pixels. This is the opposite
      * method to getValuesByTouchPoint(...).
-     * 
+     *
      * @param x
      * @param y
      * @return
      */
     public PointD getPixelsForValues(float x, float y, AxisDependency axis) {
 
-        float[] pts = new float[] {
+        float[] pts = new float[]{
                 x, y
         };
 
@@ -1199,7 +1216,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * returns the y-value at the given touch position (must not necessarily be
      * a value contained in one of the datasets)
-     * 
+     *
      * @param x
      * @param y
      * @return
@@ -1210,7 +1227,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * returns the Entry object displayed at the touched position of the chart
-     * 
+     *
      * @param x
      * @param y
      * @return
@@ -1225,12 +1242,12 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * returns the DataSet object displayed at the touched position of the chart
-     * 
+     *
      * @param x
      * @param y
      * @return
      */
-    public BarLineScatterCandleDataSet<? extends Entry> getDataSetByTouchPoint(float x, float y) {
+    public IBarLineScatterCandleBubbleDataSet getDataSetByTouchPoint(float x, float y) {
         Highlight h = getHighlightByTouchPoint(x, y);
         if (h != null) {
             return mData.getDataSetByIndex(h.getDataSetIndex());
@@ -1241,27 +1258,27 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Returns the lowest x-index (value on the x-axis) that is still visible on
      * the chart.
-     * 
+     *
      * @return
      */
     @Override
     public int getLowestVisibleXIndex() {
-        float[] pts = new float[] {
+        float[] pts = new float[]{
                 mViewPortHandler.contentLeft(), mViewPortHandler.contentBottom()
         };
         getTransformer(AxisDependency.LEFT).pixelsToValue(pts);
-        return (pts[0] <= 0) ? 0 : (int) (pts[0] + 1);
+        return (pts[0] <= 0) ? 0 : (int) (pts[0] + 1.0f);
     }
 
     /**
      * Returns the highest x-index (value on the x-axis) that is still visible
      * on the chart.
-     * 
+     *
      * @return
      */
     @Override
     public int getHighestVisibleXIndex() {
-        float[] pts = new float[] {
+        float[] pts = new float[]{
                 mViewPortHandler.contentRight(), mViewPortHandler.contentBottom()
         };
         getTransformer(AxisDependency.LEFT).pixelsToValue(pts);
@@ -1290,7 +1307,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * if the chart is fully zoomed out, return true
-     * 
+     *
      * @return
      */
     public boolean isFullyZoomedOut() {
@@ -1300,7 +1317,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Returns the left y-axis object. In the horizontal bar-chart, this is the
      * top axis.
-     * 
+     *
      * @return
      */
     public YAxis getAxisLeft() {
@@ -1310,7 +1327,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Returns the right y-axis object. In the horizontal bar-chart, this is the
      * bottom axis.
-     * 
+     *
      * @return
      */
     public YAxis getAxisRight() {
@@ -1320,7 +1337,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Returns the y-axis object to the corresponding AxisDependency. In the
      * horizontal bar-chart, LEFT == top, RIGHT == BOTTOM
-     * 
+     *
      * @param axis
      * @return
      */
@@ -1340,7 +1357,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
      * Returns the object representing all x-labels, this method can be used to
      * acquire the XAxis object and modify it (e.g. change the position of the
      * labels)
-     * 
+     *
      * @return
      */
     public XAxis getXAxis() {
@@ -1350,7 +1367,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Enables data filtering for the chart data, filtering will use the user
      * customized Approximator handed over to this method.
-     * 
+     *
      * @param a
      */
     public void enableFiltering(Approximator a) {
@@ -1367,7 +1384,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * returns true if data filtering is enabled, false if not
-     * 
+     *
      * @return
      */
     public boolean isFilteringEnabled() {
@@ -1375,9 +1392,9 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     }
 
     /**
-     * if set to true, both x and y axis can be scaled with 2 fingers, if false,
+     * If set to true, both x and y axis can be scaled simultaneously with 2 fingers, if false,
      * x and y axis can be scaled separately. default: false
-     * 
+     *
      * @param enabled
      */
     public void setPinchZoom(boolean enabled) {
@@ -1386,7 +1403,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * returns true if pinch-zoom is enabled, false if not
-     * 
+     *
      * @return
      */
     public boolean isPinchZoomEnabled() {
@@ -1396,7 +1413,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Set an offset in dp that allows the user to drag the chart over it's
      * bounds on the x-axis.
-     * 
+     *
      * @param offset
      */
     public void setDragOffsetX(float offset) {
@@ -1406,7 +1423,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Set an offset in dp that allows the user to drag the chart over it's
      * bounds on the y-axis.
-     * 
+     *
      * @param offset
      */
     public void setDragOffsetY(float offset) {
@@ -1415,7 +1432,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Returns true if both drag offsets (x and y) are zero or smaller.
-     * 
+     *
      * @return
      */
     public boolean hasNoDragOffset() {
@@ -1428,6 +1445,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Sets a custom XAxisRenderer and overrides the existing (default) one.
+     *
      * @param xAxisRenderer
      */
     public void setXAxisRenderer(XAxisRenderer xAxisRenderer) {
@@ -1440,6 +1458,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Sets a custom axis renderer for the left axis and overwrites the existing one.
+     *
      * @param rendererLeftYAxis
      */
     public void setRendererLeftYAxis(YAxisRenderer rendererLeftYAxis) {
@@ -1452,6 +1471,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Sets a custom axis renderer for the right acis and overwrites the existing one.
+     *
      * @param rendererRightYAxis
      */
     public void setRendererRightYAxis(YAxisRenderer rendererRightYAxis) {
@@ -1468,7 +1488,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
 
     /**
      * Returns true if either the left or the right or both axes are inverted.
-     * 
+     *
      * @return
      */
     public boolean isAnyAxisInverted() {
@@ -1482,18 +1502,18 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
     /**
      * Flag that indicates if auto scaling on the y axis is enabled. This is
      * especially interesting for charts displaying financial data.
-     * 
+     *
      * @param enabled the y axis automatically adjusts to the min and max y
-     *            values of the current x axis range whenever the viewport
-     *            changes
+     *                values of the current x axis range whenever the viewport
+     *                changes
      */
     public void setAutoScaleMinMaxEnabled(boolean enabled) {
         mAutoScaleMinMaxEnabled = enabled;
     }
 
     /**
-     * @default false
      * @return true if auto scaling on the y axis is enabled.
+     * @default false
      */
     public boolean isAutoScaleMinMaxEnabled() {
         return mAutoScaleMinMaxEnabled;
@@ -1522,46 +1542,5 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleData<? exte
         }
 
         return null;
-    }
-
-    /**
-     * Default formatter that calculates the position of the filled line.
-     * 
-     * @author Philipp Jahoda
-     */
-    protected class DefaultFillFormatter implements FillFormatter {
-
-        @Override
-        public float getFillLinePosition(LineDataSet dataSet, LineData data,
-                float chartMaxY, float chartMinY) {
-
-            float fillMin = 0f;
-
-            if (dataSet.getYMax() > 0 && dataSet.getYMin() < 0) {
-                fillMin = 0f;
-            } else {
-
-                if (!getAxis(dataSet.getAxisDependency()).isStartAtZeroEnabled()) {
-
-                    float max, min;
-
-                    if (data.getYMax() > 0)
-                        max = 0f;
-                    else
-                        max = chartMaxY;
-                    if (data.getYMin() < 0)
-                        min = 0f;
-                    else
-                        min = chartMinY;
-
-                    fillMin = dataSet.getYMin() >= 0 ? min : max;
-                } else {
-                    fillMin = 0f;
-                }
-
-            }
-
-            return fillMin;
-        }
     }
 }
